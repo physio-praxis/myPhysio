@@ -1,0 +1,55 @@
+Table customer {
+  customer_id integer [primary key]
+  name varchar
+  email varchar
+  phone_number varchar
+  contact_information varchar
+  address varchar
+}
+
+Table pet {
+  pet_id integer [primary key]
+  name varchar
+  species varchar
+  breed varchar
+  age integer
+  medical_history varchar [note: 'Medical history of the pet']
+  customer_id integer
+}
+
+Table appointment {
+  appointment_id integer [primary key]
+  date_time timestamp
+  status varchar [note: 'Scheduled, Completed, Canceled']
+  customer_id integer
+  pet_id integer
+}
+
+Table medical_record {
+  record_id integer [primary key]
+  vaccinations varchar
+  treatments varchar
+  prescribed_medications varchar
+  pet_id integer
+}
+
+Table invoice {
+  invoice_id integer [primary key]
+  date_issued timestamp
+  amount decimal
+  customer_id integer
+}
+
+Table payment {
+  payment_id integer [primary key]
+  amount_paid decimal
+  payment_date timestamp
+  invoice_id integer
+}
+
+Ref: pet.customer_id > customer.customer_id // many-to-one
+Ref: appointment.customer_id > customer.customer_id // many-to-one
+Ref: appointment.pet_id > pet.pet_id // many-to-one
+Ref: medical_record.pet_id > pet.pet_id // many-to-one
+Ref: invoice.customer_id > customer.customer_id // many-to-one
+Ref: payment.invoice_id > invoice.invoice_id // many-to-one
