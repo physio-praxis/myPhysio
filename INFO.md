@@ -1,4 +1,4 @@
-# Veterinary Clinic Management System
+# Physio Management System
 
 ## User Roles:
 - **Admin:** Manages overall system settings, user accounts, and access permissions.
