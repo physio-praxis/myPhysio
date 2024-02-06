@@ -17,20 +17,29 @@ CREATE TABLE `pet` (
   `customer_id` integer
 );
 
+CREATE TABLE `appointment_status` (
+  `status_id` integer PRIMARY KEY,
+  `status_name` varchar(255)
+);
+
 CREATE TABLE `appointment` (
   `appointment_id` integer PRIMARY KEY,
   `date_time` timestamp,
-  `status` varchar(255) COMMENT 'Scheduled, Completed, Canceled',
+  `status_id` integer,
   `customer_id` integer,
   `pet_id` integer
 );
 
-CREATE TABLE `medical_record` (
-  `record_id` integer PRIMARY KEY,
-  `vaccinations` varchar(255),
-  `treatments` varchar(255),
-  `prescribed_medications` varchar(255),
-  `pet_id` integer
+CREATE TABLE `pet_treatment` (
+  `pet_treatment_id` integer PRIMARY KEY,
+  `pet_id` integer,
+  `treatment_id` integer
+);
+
+CREATE TABLE `treatment` (
+  `treatment_id` integer PRIMARY KEY,
+  `name` varchar(255),
+  `description` text COMMENT 'Description of the treatment'
 );
 
 CREATE TABLE `invoice` (
@@ -47,14 +56,33 @@ CREATE TABLE `payment` (
   `invoice_id` integer
 );
 
+CREATE TABLE `pet_medical_issue` (
+  `pet_medical_issue_id` integer PRIMARY KEY,
+  `pet_id` integer,
+  `medical_issue_id` integer
+);
+
+CREATE TABLE `medical_issue` (
+  `medical_issue_id` integer PRIMARY KEY,
+  `medical_issue` varchar(255)
+);
+
 ALTER TABLE `pet` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
 
 ALTER TABLE `appointment` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
 
 ALTER TABLE `appointment` ADD FOREIGN KEY (`pet_id`) REFERENCES `pet` (`pet_id`);
 
-ALTER TABLE `medical_record` ADD FOREIGN KEY (`pet_id`) REFERENCES `pet` (`pet_id`);
+ALTER TABLE `appointment` ADD FOREIGN KEY (`status_id`) REFERENCES `appointment_status` (`status_id`);
+
+ALTER TABLE `pet_treatment` ADD FOREIGN KEY (`pet_id`) REFERENCES `pet` (`pet_id`);
+
+ALTER TABLE `pet_treatment` ADD FOREIGN KEY (`treatment_id`) REFERENCES `treatment` (`treatment_id`);
 
 ALTER TABLE `invoice` ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
 
 ALTER TABLE `payment` ADD FOREIGN KEY (`invoice_id`) REFERENCES `invoice` (`invoice_id`);
+
+ALTER TABLE `pet_medical_issue` ADD FOREIGN KEY (`pet_id`) REFERENCES `pet` (`pet_id`);
+
+ALTER TABLE `pet_medical_issue` ADD FOREIGN KEY (`medical_issue_id`) REFERENCES `medical_issue` (`medical_issue_id`);
