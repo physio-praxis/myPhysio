@@ -8,7 +8,7 @@
 ## Customer and Pet Management:
 - **Add New Customer:** Admin/Receptionist can add new customers with details like name, contact information, and address.
 - **Add Pet Information:** For each customer, details about their pets (species, breed, age, medical history) can be added.
-- **Medical Records:** Physios can record and update medical history, vaccinations, and treatments for each visit.
+- **Medical Records:** Physios can record and update medical history and treatments for each visit.
 
 ## Appointment Scheduling:
 - **Calendar View:** Physio can view and manage appointments through a calendar interface.
