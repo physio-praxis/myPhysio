@@ -30,7 +30,7 @@
 
 ## Feedback and Reviews: (Phase 2)
 - **Customer Feedback:** Collect feedback from customers about their experience with the clinic.
-- **Review System:** Allow customers to leave reviews for the clinic and Physios.
+- **Review System:** Allow customers to leave reviews for the clinic and Physio.
 
 ## Technology Stack:
 
