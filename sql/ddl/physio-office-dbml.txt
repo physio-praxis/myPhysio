@@ -1,79 +1,103 @@
+// Customer Table
 Table customer {
-  customer_id integer [primary key]
+  customer_id int [primary key, increment]
   name varchar
   email varchar
   phone_number varchar
-  contact_information varchar
   address varchar
 }
 
-Table pet {
-  pet_id integer [primary key]
+// Species Table
+Table species {
+  species_id int [primary key, increment]
   name varchar
-  species varchar
-  breed varchar
-  age integer
-  medical_history varchar [note: 'Medical history of the pet']
-  customer_id integer
 }
 
+// Pet Table
+Table pet {
+  pet_id int [primary key, increment]
+  name varchar
+  species_id int [ref: > species.species_id]
+  breed varchar
+  age date
+  medical_history text
+  customer_id int [ref: > customer.customer_id]
+}
+
+// Appointment Status Table
 Table appointment_status {
-  status_id integer [primary key]
+  status_id int [primary key, increment]
   status_name varchar
 }
 
+// Appointment Table
 Table appointment {
-  appointment_id integer [primary key]
+  appointment_id int [primary key, increment]
   date_time timestamp
-  status_id integer
-  customer_id integer
-  pet_id integer
+  status_id int [ref: > appointment_status.status_id]
+  customer_id int [ref: > customer.customer_id]
+  pet_id int [ref: > pet.pet_id]
 }
 
-Table pet_treatment {
-  pet_treatment_id integer [primary key]
-  pet_id integer
-  treatment_id integer
-}
-
-Table treatment {
-  treatment_id integer [primary key]
-  name varchar
-  description text [note: 'Description of the treatment']
-}
-
+// Invoice Table
 Table invoice {
-  invoice_id integer [primary key]
+  invoice_id int [primary key, increment]
   date_issued timestamp
   amount decimal
-  customer_id integer
+  customer_id int [ref: > customer.customer_id]
 }
 
+// Treatment Table
+Table treatment {
+  treatment_id int [primary key, increment]
+  name varchar
+  description text
+}
+
+// Pet Treatment Table
+Table pet_treatment {
+  pet_treatment_id int [primary key, increment]
+  pet_id int [ref: > pet.pet_id]
+  treatment_id int [ref: > treatment.treatment_id]
+  invoice_id int [ref: > invoice.invoice_id]
+}
+
+// Product Table
+Table product {
+  product_id int [primary key, increment]
+  name varchar
+  description text
+  pricing int
+}
+
+// Product Purchase Table
+Table product_purchase {
+  purchase_id int [primary key, increment]
+  product_id int [ref: > product.product_id]
+  customer_id int [ref: > customer.customer_id]
+  invoice_id int [ref: > invoice.invoice_id]
+  name varchar
+  amount int
+  pricing float
+}
+
+// Payment Table
 Table payment {
-  payment_id integer [primary key]
+  payment_id int [primary key, increment]
   amount_paid decimal
   payment_date timestamp
-  invoice_id integer
+  invoice_id int [ref: > invoice.invoice_id]
 }
 
-Table pet_medical_issue {
-  pet_medical_issue_id integer [primary key]
-  pet_id integer
-  medical_issue_id integer
-}
-
+// Medical Issue Table
 Table medical_issue {
-  medical_issue_id integer [primary key]
+  medical_issue_id int [primary key, increment]
   medical_issue varchar
 }
 
-Ref: pet.customer_id > customer.customer_id // many-to-one
-Ref: appointment.customer_id > customer.customer_id // many-to-one
-Ref: appointment.pet_id > pet.pet_id // many-to-one
-Ref: appointment.status_id > appointment_status.status_id // many-to-one
-Ref: pet_treatment.pet_id > pet.pet_id // many-to-one
-Ref: pet_treatment.treatment_id > treatment.treatment_id // many-to-one
-Ref: invoice.customer_id > customer.customer_id // many-to-one
-Ref: payment.invoice_id > invoice.invoice_id // many-to-one
-Ref: pet_medical_issue.pet_id > pet.pet_id // many-to-one
-Ref: pet_medical_issue.medical_issue_id > medical_issue.medical_issue_id // many-to-one
+// Pet Medical Issue Table
+Table pet_medical_issue {
+  pet_medical_issue_id int [primary key, increment]
+  pet_id int [ref: > pet.pet_id]
+  medical_issue_id int [ref: > medical_issue.medical_issue_id]
+}
