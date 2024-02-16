@@ -1,0 +1,13 @@
+drop table if exists appointment cascade;
+drop table if exists appointment_status cascade;
+drop table if exists customer cascade;
+drop table if exists invoice cascade;
+drop table if exists medical_issue cascade;
+drop table if exists payment cascade;
+drop table if exists pet cascade;
+drop table if exists pet_medical_issue cascade;
+drop table if exists pet_treatment cascade;
+drop table if exists product cascade;
+drop table if exists product_purchase cascade;
+drop table if exists species cascade;
+drop table if exists treatment cascade;

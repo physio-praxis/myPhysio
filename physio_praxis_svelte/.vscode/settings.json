@@ -116,5 +116,9 @@
 		"transition",
 		"width",
 		"zIndex"
-	]
+	],
+	"cSpell.words": [
+		"supabase"
+	],
+	"cSpell.language": "en,de-DE"
 }

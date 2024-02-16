@@ -1,0 +1,103 @@
+// Customer Table
+Table customer {
+  customer_id int [primary key, increment]
+  name varchar
+  email varchar
+  phone_number varchar
+  address varchar
+}
+
+// Species Table
+Table species {
+  species_id int [primary key, increment]
+  name varchar
+}
+
+// Pet Table
+Table pet {
+  pet_id int [primary key, increment]
+  name varchar
+  species_id int [ref: > species.species_id]
+  breed varchar
+  age date
+  medical_history text
+  customer_id int [ref: > customer.customer_id]
+}
+
+// Appointment Status Table
+Table appointment_status {
+  status_id int [primary key, increment]
+  status_name varchar
+}
+
+// Appointment Table
+Table appointment {
+  appointment_id int [primary key, increment]
+  date_time timestamp
+  status_id int [ref: > appointment_status.status_id]
+  customer_id int [ref: > customer.customer_id]
+  pet_id int [ref: > pet.pet_id]
+}
+
+// Invoice Table
+Table invoice {
+  invoice_id int [primary key, increment]
+  date_issued timestamp
+  amount decimal
+  customer_id int [ref: > customer.customer_id]
+}
+
+// Treatment Table
+Table treatment {
+  treatment_id int [primary key, increment]
+  name varchar
+  description text
+}
+
+// Pet Treatment Table
+Table pet_treatment {
+  pet_treatment_id int [primary key, increment]
+  pet_id int [ref: > pet.pet_id]
+  treatment_id int [ref: > treatment.treatment_id]
+  invoice_id int [ref: > invoice.invoice_id]
+}
+
+// Product Table
+Table product {
+  product_id int [primary key, increment]
+  name varchar
+  description text
+  pricing int
+}
+
+// Product Purchase Table
+Table product_purchase {
+  purchase_id int [primary key, increment]
+  product_id int [ref: > product.product_id]
+  customer_id int [ref: > customer.customer_id]
+  invoice_id int [ref: > invoice.invoice_id]
+  name varchar
+  amount int
+  pricing float
+}
+
+// Payment Table
+Table payment {
+  payment_id int [primary key, increment]
+  amount_paid decimal
+  payment_date timestamp
+  invoice_id int [ref: > invoice.invoice_id]
+}
+
+// Medical Issue Table
+Table medical_issue {
+  medical_issue_id int [primary key, increment]
+  medical_issue varchar
+}
+
+// Pet Medical Issue Table
+Table pet_medical_issue {
+  pet_medical_issue_id int [primary key, increment]
+  pet_id int [ref: > pet.pet_id]
+  medical_issue_id int [ref: > medical_issue.medical_issue_id]
+}
