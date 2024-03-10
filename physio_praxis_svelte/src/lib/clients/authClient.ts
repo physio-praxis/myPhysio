@@ -1,13 +1,12 @@
-import type { SignInWithOAuthCredentials } from "@supabase/supabase-js";
-import { supabase } from "./supabaseClient";
-import { AUTH_REDIRECT_URL } from '$env/static/private';
-import type { allowed_users } from "$lib/types/types";
+import { PUBLIC_AUTH_REDIRECT_URL } from '$env/static/public';
+import type { Database } from '$lib/gen/supabase';
+import type { SignInWithOAuthCredentials, SupabaseClient } from "@supabase/supabase-js";
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(supabase: SupabaseClient) {
     const credentials: SignInWithOAuthCredentials = {
         provider: 'google',
         options: {
-            redirectTo: AUTH_REDIRECT_URL,
+            redirectTo: PUBLIC_AUTH_REDIRECT_URL,
             scopes: 'profile email',
             skipBrowserRedirect: false,
         }
@@ -18,12 +17,15 @@ export async function signInWithGoogle() {
     return { data };
 }
 
-export async function isUserAllowed(email: string): Promise<allowed_users> {
+export async function isUserAllowed(supabase: SupabaseClient<Database>, email: string|undefined): Promise<boolean> {
+    if(!email) return false;
+    
     const { data, error } = await supabase
         .from('allowed_users')
         .select()
         .eq('email', email)
         .single();
-    if (error) throw error;
-    return data;
+    console.log(data);
+    if (error) return false;
+    return data != null;
 }

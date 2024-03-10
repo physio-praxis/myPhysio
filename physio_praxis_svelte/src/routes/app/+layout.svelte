@@ -1,17 +1,7 @@
 <script lang="ts">
 	import 'iconify-icon';
 	import { AppRail, AppRailAnchor, AppShell, Avatar } from "@skeletonlabs/skeleton";
-	import { page } from "$app/stores";
-	import { browser } from "$app/environment";
-	import { goto } from "$app/navigation";
-
-	$: navigateToFirstOption($page.url.pathname)
-
-	function navigateToFirstOption(pagePath: string) {
-		if(browser && pagePath === '/app') {
-			goto('/app/calendar')
-		}
-	}
+	import { page } from "$app/stores";	
 </script>
 
 <AppShell>
@@ -47,7 +37,7 @@
 				<span>Behandlung</span>
 			</AppRailAnchor>
 			<svelte:fragment slot="trail">
-				<AppRailAnchor href="/" title="Ausloggen">
+				<AppRailAnchor href="/auth/logout" title="Ausloggen">
 					<svelte:fragment slot="lead">
 						<iconify-icon class="text-2xl" icon="mdi:logout" observer="false"/>
 					</svelte:fragment>

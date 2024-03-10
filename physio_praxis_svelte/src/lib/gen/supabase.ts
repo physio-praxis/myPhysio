@@ -24,6 +24,49 @@ export type Database = {
         }
         Relationships: []
       }
+      appointed_treatment: {
+        Row: {
+          appointment_id: number | null
+          invoice_id: number | null
+          pet_treatment_id: number
+          treatment_id: number | null
+        }
+        Insert: {
+          appointment_id?: number | null
+          invoice_id?: number | null
+          pet_treatment_id?: number
+          treatment_id?: number | null
+        }
+        Update: {
+          appointment_id?: number | null
+          invoice_id?: number | null
+          pet_treatment_id?: number
+          treatment_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_treatment_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoice"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "pet_treatment_treatment_id_fkey"
+            columns: ["treatment_id"]
+            isOneToOne: false
+            referencedRelation: "treatment"
+            referencedColumns: ["treatment_id"]
+          },
+          {
+            foreignKeyName: "public_appointed_treatment_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointment"
+            referencedColumns: ["appointment_id"]
+          }
+        ]
+      }
       appointment: {
         Row: {
           appointment_id: number
@@ -263,49 +306,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pet"
             referencedColumns: ["pet_id"]
-          }
-        ]
-      }
-      pet_treatment: {
-        Row: {
-          invoice_id: number | null
-          pet_id: number | null
-          pet_treatment_id: number
-          treatment_id: number | null
-        }
-        Insert: {
-          invoice_id?: number | null
-          pet_id?: number | null
-          pet_treatment_id?: number
-          treatment_id?: number | null
-        }
-        Update: {
-          invoice_id?: number | null
-          pet_id?: number | null
-          pet_treatment_id?: number
-          treatment_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pet_treatment_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoice"
-            referencedColumns: ["invoice_id"]
-          },
-          {
-            foreignKeyName: "pet_treatment_pet_id_fkey"
-            columns: ["pet_id"]
-            isOneToOne: false
-            referencedRelation: "pet"
-            referencedColumns: ["pet_id"]
-          },
-          {
-            foreignKeyName: "pet_treatment_treatment_id_fkey"
-            columns: ["treatment_id"]
-            isOneToOne: false
-            referencedRelation: "treatment"
-            referencedColumns: ["treatment_id"]
           }
         ]
       }
