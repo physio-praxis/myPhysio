@@ -15,7 +15,7 @@ module.exports = {
 		extraFileExtensions: ['.svelte']
 	},
 	rules: {
-		"no-console": "warn"
+		'no-console': 'warn'
 	},
 	env: {
 		browser: true,

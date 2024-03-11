@@ -1,7 +1,5 @@
 {
-	"prettier.documentSelectors": [
-		"**/*.svelte"
-	],
+	"prettier.documentSelectors": ["**/*.svelte"],
 	"tailwindCSS.classAttributes": [
 		"class",
 		"accent",
@@ -117,8 +115,6 @@
 		"width",
 		"zIndex"
 	],
-	"cSpell.words": [
-		"supabase"
-	],
+	"cSpell.words": ["iconify", "skeletonlabs", "supabase"],
 	"cSpell.language": "en,de-DE"
 }
