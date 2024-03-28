@@ -1,62 +1,30 @@
-name: Lint
+name: Lint and Svelte Check
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+on: [pull_request]
 
 jobs:
-  check:
-    name: Run svelte-check
+ lint-and-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_ENV
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-store-
-      - name: Install dependencies
-        run: pnpm install
-      - name: Run svelte-check
-        run: pnpm ci:check
-        env:
-          VERCEL_ENV: dev
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  lint:
-    name: Run linter
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          version: 8
-      - uses: actions/setup-node@v3
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.2.2
         with:
-          node-version: 18
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_ENV
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-store-
+          version: 7
+
       - name: Install dependencies
         run: pnpm install
-      - name: Run prettier and eslint
-        run: pnpm ci:lint
+
+      - name: Run pnpm lint
+        run: pnpm lint
+
+      - name: Run Svelte check
+        run: pnpm svelte-check
