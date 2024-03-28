@@ -16,6 +16,7 @@ jobs:
       uses: pnpm/action-setup@v3.0.0
       with:
         package_json_file: ./physio_praxis_svelte/package.json
+        version: '8'
     - name: svelte check
       run: pnpm svelte-check
       working-directory: ./physio_praxis_svelte
