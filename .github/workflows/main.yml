@@ -1,0 +1,26 @@
+name: Node.js CI
+
+on:
+ push:
+    branches: [ "main" ]
+ pull_request:
+    branches: [ "main" ]
+          
+jobs:
+ build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3.0.0
+    - run: pnpm ci
+    - run: pnpm run build --if-present
+    - name: Run pnpm lint
+      run: pnpm lint
+    - name: Run Svelte check
+      run: pnpm svelte-check
