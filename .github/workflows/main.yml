@@ -17,6 +17,9 @@ jobs:
       with:
         package_json_file: ./physio_praxis_svelte/package.json
         version: '8'
+    - name: install dependencies
+      run: pnpm ci
+      working-directory: ./physio_praxis_svelte
     - name: svelte check
       run: pnpm check
       working-directory: ./physio_praxis_svelte
