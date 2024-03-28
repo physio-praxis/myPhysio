@@ -1,4 +1,4 @@
-name: Node.js CI
+name: lint
 
 on:
  push:
@@ -19,6 +19,9 @@ jobs:
         version: '8'
     - name: install dependencies
       run: pnpm i
+      working-directory: ./physio_praxis_svelte
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
       working-directory: ./physio_praxis_svelte
     - name: svelte check
       run: pnpm check
