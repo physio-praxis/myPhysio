@@ -16,9 +16,9 @@ jobs:
           cache: "pnpm"
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7
+        run: |
+          curl -fsSL https://get.pnpm.io/install.sh | bash -
+          echo "$HOME/.pnpm" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: pnpm install
