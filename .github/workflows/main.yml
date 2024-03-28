@@ -12,18 +12,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: List directory contents
-      run: ls -la ./physio_praxis_svelte
     - name: Setup pnpm
       uses: pnpm/action-setup@v3.0.0
-    - name: install dependencies
-      run: pnpm ci
-      working-directory: ./physio_praxis_svelte
-    - run: pnpm run build --if-present
-      working-directory: ./physio_praxis_svelte
-    - name: Run pnpm lint
-      run: pnpm lint
-      working-directory: ./physio_praxis_svelte
-    - name: Run Svelte check
-      run: pnpm svelte-check
-      working-directory: ./physio_praxis_svelte
+    - name: action script
+      run: |
+        cd ./physio_praxis_svelte
+        pnpm ci
+        pnpm run build --if-present
+        pnpm lint
+        pnpm svelte-check
