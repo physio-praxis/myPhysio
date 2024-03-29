@@ -1,0 +1,31 @@
+name: lint
+
+on:
+ push:
+    branches: [ "main" ]
+ pull_request:
+    branches: [ "main" ]
+          
+jobs:
+ build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3.0.0
+      with:
+        package_json_file: ./physio_praxis_svelte/package.json
+        version: '8'
+    - name: install dependencies
+      run: pnpm i
+      working-directory: ./physio_praxis_svelte
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
+      working-directory: ./physio_praxis_svelte
+    - name: svelte check
+      run: pnpm check
+      working-directory: ./physio_praxis_svelte
+    - name: lint
+      run: pnpm lint
+      working-directory: ./physio_praxis_svelte
