@@ -20,7 +20,7 @@ export default {
 		skeleton({
 			themes: {
 				custom: [physioTheme],
-				preset: ["crimson"]
+				preset: ['crimson']
 			}
 		})
 	]
