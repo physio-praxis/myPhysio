@@ -11,6 +11,6 @@
 		</button>
 	</section>
 	<section class="flex space-y-2 w-full">
-		<a href="#" class="card p-4 w-full">basic link card</a>
+		<a href="/" class="card p-4 w-full">basic link card</a>
 	</section>
 </main>
