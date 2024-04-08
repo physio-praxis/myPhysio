@@ -1,4 +1,4 @@
-import type { CustomerPetOverview } from '$lib/types/gen/types';
+import type { CustomerPetOverview } from '$lib/types/db/types';
 import { error as svelte_error } from '@sveltejs/kit';
 
 export const load = async ({ locals: { supabase } }) => {
