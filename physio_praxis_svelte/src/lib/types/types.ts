@@ -1,5 +1,7 @@
 // DB ---
 
+import type { Database } from './gen/supabase';
+
 export interface PetOverview {
 	pet_name: string;
 	pet_species: string;
@@ -16,6 +18,8 @@ export interface CustomerPetOverview {
 	address: string;
 	pets: PetOverview[];
 }
+
+export type CustomerInsert = Database['public']['Tables']['customer']['Insert'];
 
 // Meta data ---
 export interface IOpenGraphTag {

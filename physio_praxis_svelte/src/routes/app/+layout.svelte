@@ -4,9 +4,9 @@
 	import { page } from '$app/stores';
 </script>
 
-<AppShell>
+<AppShell regionPage="h-screen">
 	<svelte:fragment slot="sidebarLeft">
-		<AppRail class="h-screen">
+		<AppRail class="h-full">
 			<AppRailAnchor
 				href="/app/user"
 				title="Benutzer"
@@ -66,7 +66,7 @@
 			</svelte:fragment>
 		</AppRail>
 	</svelte:fragment>
-	<main class="m-4 space-y-4 flex flex-col items-center">
+	<main class="space-y-4 p-4 flex flex-col items-center h-full">
 		<slot />
 	</main>
 </AppShell>
