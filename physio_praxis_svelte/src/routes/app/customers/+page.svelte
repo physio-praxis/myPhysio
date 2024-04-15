@@ -1,11 +1,17 @@
 <script lang="ts">
 	import Head from '$lib/components/Head.svelte';
 	import { HeadTags } from '$lib/types/classes';
+	import type { CustomerPetOverview } from '$lib/types/types';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import axios from 'axios';
 	import 'iconify-icon';
 
-	export let data;
-	let { customerPetOverview } = data;
+	let customerPetOverviewPromise: Promise<CustomerPetOverview[]> = axios
+		.get<CustomerPetOverview[]>('/app/customers')
+		.then((response) => response.data)
+		.catch((error) => {
+			return Promise.reject(error);
+		});
 
 	const headTags = new HeadTags('MyPhysio Customers', 'a list of your customers at MyPhysio');
 </script>
@@ -29,7 +35,12 @@
 	</a>
 </section>
 <section class="flex flex-col space-y-2 w-full h-full">
-	{#if customerPetOverview}
+	{#await customerPetOverviewPromise}
+		<div class="w-full h-full flex flex-col items-center justify-center gap-4">
+			<p>Kunden werden geladen...</p>
+			<ProgressRadial width="w-16" meter="stroke-primary-500" track="stroke-primary-500/30" />
+		</div>
+	{:then customerPetOverview}
 		{#if customerPetOverview.length > 0}
 			{#each customerPetOverview as customerPet}
 				<a href="/" class="card p-4 w-full">
@@ -60,10 +71,5 @@
 				</div>
 			</div>
 		{/if}
-	{:else}
-		<div class="w-full h-full flex flex-col items-center justify-center gap-4">
-			<p>Kunden werden geladen...</p>
-			<ProgressRadial width="w-16" meter="stroke-primary-500" track="stroke-primary-500/30" />
-		</div>
-	{/if}
+	{/await}
 </section>
