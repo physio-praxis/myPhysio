@@ -19,7 +19,8 @@ export default {
 		typography,
 		skeleton({
 			themes: {
-				custom: [physioTheme]
+				custom: [physioTheme],
+				preset: ['crimson']
 			}
 		})
 	]

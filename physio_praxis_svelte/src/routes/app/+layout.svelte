@@ -4,9 +4,9 @@
 	import { page } from '$app/stores';
 </script>
 
-<AppShell>
+<AppShell regionPage="h-screen">
 	<svelte:fragment slot="sidebarLeft">
-		<AppRail class="h-screen">
+		<AppRail class="h-full">
 			<AppRailAnchor
 				href="/app/user"
 				title="Benutzer"
@@ -19,7 +19,7 @@
 			<AppRailAnchor
 				href="/app/calendar"
 				title="Kalender"
-				selected={$page.url.pathname === '/app/calendar'}
+				selected={$page.url.pathname.includes('/app/calendar')}
 			>
 				<svelte:fragment slot="lead">
 					<iconify-icon class="text-2xl" icon="mdi:calendar" observer="false" />
@@ -29,7 +29,7 @@
 			<AppRailAnchor
 				href="/app/customers"
 				title="Kunden"
-				selected={$page.url.pathname === '/app/customers'}
+				selected={$page.url.pathname.includes('/app/customers')}
 			>
 				<svelte:fragment slot="lead">
 					<iconify-icon class="text-2xl" icon="mdi:clipboard-person" observer="false" />
@@ -39,7 +39,7 @@
 			<AppRailAnchor
 				href="/app/invoices"
 				title="Rechnungen"
-				selected={$page.url.pathname === '/app/invoices'}
+				selected={$page.url.pathname.includes('/app/invoices')}
 			>
 				<svelte:fragment slot="lead">
 					<iconify-icon class="text-2xl" icon="mdi:invoice-text" observer="false" />
@@ -49,7 +49,7 @@
 			<AppRailAnchor
 				href="/app/treatments"
 				title="Behandlungen"
-				selected={$page.url.pathname === '/app/treatments'}
+				selected={$page.url.pathname.includes('/app/treatments')}
 			>
 				<svelte:fragment slot="lead">
 					<iconify-icon class="text-2xl" icon="mdi:medical-bag" observer="false" />
@@ -66,5 +66,7 @@
 			</svelte:fragment>
 		</AppRail>
 	</svelte:fragment>
-	<slot />
+	<main class="space-y-4 p-4 flex flex-col items-center h-full">
+		<slot />
+	</main>
 </AppShell>

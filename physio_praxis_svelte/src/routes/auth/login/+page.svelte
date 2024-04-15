@@ -1,15 +1,17 @@
 <script lang="ts">
 	import 'iconify-icon';
-	import type { ActionData } from './$types';
+	import { superForm } from 'sveltekit-superforms';
 
-	export let form: ActionData;
+	export let data;
+
+	const { form, errors, enhance } = superForm(data?.form);
 </script>
 
 <main class="h-screen flex flex-col justify-center items-center space-y-6">
 	<h1 class="h1"><span class="gradient-heading">Physio Praxis</span></h1>
 	<hr class="w-1/5" />
-	<form class="flex flex-col space-y-4 sm:min-w-96" method="POST">
-		{#if form?.missing}<p class="text-error-500-400-token">*E-Mail ist erforderlich</p>{/if}
+	<form class="flex flex-col space-y-4 sm:min-w-96" method="POST" use:enhance>
+		{#if $errors.email}<p class="text-error-500-400-token">{$errors.email}</p>{/if}
 		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">
 				<iconify-icon class="text-2xl" icon="mdi:email" observer="false" />
@@ -21,10 +23,12 @@
 				type="email"
 				placeholder="Email"
 				autocomplete="email"
+				aria-invalid={$errors.email ? 'true' : undefined}
+				bind:value={$form.email}
 			/>
 		</div>
 
-		{#if form?.pass_missing}<p class="text-error-500-400-token">*Passwort ist erforderlich</p>{/if}
+		{#if $errors.password}<p class="text-error-500-400-token">{$errors.password}</p>{/if}
 		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">
 				<iconify-icon class="text-2xl" icon="mdi:form-textbox-password" observer="false" />
@@ -35,14 +39,10 @@
 				title="password"
 				type="password"
 				placeholder="Passwort"
+				aria-invalid={$errors.password ? 'true' : undefined}
+				bind:value={$form.password}
 			/>
 		</div>
 		<button class="btn variant-filled-primary">Anmelden</button>
-		{#if form?.login_failed}
-			<p class="text-error-500-400-token">Die E-Mail-Adresse oder das Passwort ist inkorrekt</p>
-			<p class="text-error-500-400-token">
-				oder Sie sind nicht autorisiert, diese App zu verwenden!
-			</p>
-		{/if}
 	</form>
 </main>

@@ -1,29 +1,34 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { setError, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
+
+const schema = z.object({
+	email: z.string().email('Ungültige E-Mail-Adresse.'),
+	password: z.string().min(5, 'Ungültiges Passwort.')
+});
+
+export const load = async () => {
+	const form = superValidate(zod(schema));
+	return { form };
+};
 
 export const actions = {
 	default: async ({ request, locals: { supabase } }) => {
-		const formData = await request.formData();
+		const form = await superValidate(request, zod(schema));
 
-		const email = formData.get('email') as string;
-		const password = formData.get('password') as string;
-
-		if (!email) {
-			return fail(400, { email, missing: true });
-		}
-
-		if (!password) {
-			// as a precaution, we only return the email back to the page — not the password.
-			return fail(400, { email, pass_missing: true });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		const { data, error } = await supabase.auth.signInWithPassword({
-			email: email,
-			password: password
+			email: form.data.email,
+			password: form.data.password
 		});
 
 		if (error || !data.user.email) {
-			return fail(400, { email, login_failed: true });
+			return setError(form, 'email', 'Ungültige Anmeldeinformationen!');
 		}
 
 		return redirect(303, '/app/calendar');
