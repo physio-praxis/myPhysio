@@ -20,6 +20,8 @@ export interface CustomerPetOverview {
 }
 
 export type CustomerInsert = Database['public']['Tables']['customer']['Insert'];
+export type CustomerUpdate = Database['public']['Tables']['customer']['Update'];
+export type Customer = Database['public']['Tables']['customer']['Row'];
 
 // Meta data ---
 export interface IOpenGraphTag {

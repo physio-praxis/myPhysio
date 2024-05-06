@@ -11,12 +11,15 @@
 
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
-	const headTags = new HeadTags(
-		'MyPhysio add customer',
-		'add a new customer to your customers in MyPhysio'
-	);
 
 	export let data;
+
+	$: headTags = new HeadTags(
+		`MyPhysio ${$form.id ? 'edit' : 'add'} customer`,
+		$form.id
+			? 'Edit existing customer from your customers in MyPhysio'
+			: 'add a new customer to your customers in MyPhysio'
+	);
 
 	const { form, errors, enhance } = superForm(data?.form, {
 		onError({ result }) {
@@ -30,7 +33,9 @@
 		onResult({ result }) {
 			if (result.status === 303) {
 				const t: ToastSettings = {
-					message: 'Kunde wurde erfolgreich erstellt!',
+					message: $form.id
+						? 'Kunde wurde erfolgreich bearbeitet!'
+						: 'Kunde wurde erfolgreich erstellt!',
 					background: 'variant-filled-warning'
 				};
 				toastStore.trigger(t);
@@ -41,9 +46,14 @@
 
 <Head {headTags} />
 
-<h1 class="h1 mb-8">Neuen Kunden hinzufügen</h1>
+<h1 class="h1 mb-8">
+	{$form.id ? `Kunde Bearbeiten [${$form.firstName} ${$form.lastName}]` : 'Neuen Kunden hinzufügen'}
+</h1>
 
 <form class="space-y-8 w-full lg:w-[940px]" method="POST" use:enhance>
+	{#if $form.id}
+		<input type="hidden" name="id" bind:value={$form.id} />
+	{/if}
 	<div class="flex flex-col md:flex-row gap-4">
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
@@ -128,6 +138,8 @@
 
 	<div class="flex flex-col-reverse sm:flex-row justify-end gap-4 sm:gap-2">
 		<a href="/app/customers" class="btn btn-md mr-2 variant-ghost-error">Abbrechen</a>
-		<button type="submit" class="btn btn-md mr-2 variant-ghost-primary">Kunde hinzufügen</button>
+		<button type="submit" class="btn btn-md mr-2 variant-ghost-primary"
+			>Kunde {$form.id ? 'speichern' : 'hinzufügen'}</button
+		>
 	</div>
 </form>

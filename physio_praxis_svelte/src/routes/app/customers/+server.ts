@@ -5,7 +5,10 @@ export async function GET(event) {
 	const {
 		locals: { supabase }
 	} = event;
-	const { data, error } = await supabase.from('customer_pet_overview').select('*');
+	const { data, error } = await supabase
+		.from('customer_pet_overview')
+		.select('*')
+		.order('customer_name', { ascending: true });
 	if (error) {
 		return svelte_error(500, error.message);
 	}
