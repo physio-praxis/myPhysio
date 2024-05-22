@@ -18,13 +18,13 @@
 
 	let customerPetOverviewPromise: Promise<CustomerPetOverview[]> = getPetOverviewPromise();
 
-	function getPetOverviewPromise() {
-		return axios
-			.get<CustomerPetOverview[]>('/app/customers')
-			.then((response) => response.data)
-			.catch((error) => {
-				return Promise.reject(error);
-			});
+	async function getPetOverviewPromise() {
+		try {
+			const response = await axios.get<CustomerPetOverview[]>('/app/customers');
+			return response.data;
+		} catch (error) {
+			return await Promise.reject(error);
+		}
 	}
 
 	function deleteCustomer(customerId: number, customerName: string) {
