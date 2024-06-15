@@ -115,6 +115,6 @@
 		"width",
 		"zIndex"
 	],
-	"cSpell.words": ["iconify", "skeletonlabs", "supabase", "superforms", "tailwindcss"],
+	"cSpell.words": ["dayjs", "iconify", "skeletonlabs", "supabase", "superforms", "tailwindcss"],
 	"cSpell.language": "en,de-DE"
 }
