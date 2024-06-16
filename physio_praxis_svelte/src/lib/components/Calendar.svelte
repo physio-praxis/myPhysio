@@ -7,11 +7,11 @@
 	const options = {
 		enableTime: false,
 		dateFormat: 'd-m-Y',
+		defaultDate: new Date(),
 		maxDate: new Date()
 	};
 
-	export let selected: Date;
-	export let name: string;
+	export let selected: Date | null | undefined;
 
 	flatpickr.localize(German);
 </script>
@@ -21,5 +21,4 @@
 hover:brightness-105 !ring-0 border-token border-surface-400-500-token focus-within:border-primary-500 rounded-token"
 	{options}
 	bind:value={selected}
-	{name}
 />

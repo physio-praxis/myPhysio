@@ -80,7 +80,8 @@
 				Alter
 				<iconify-icon icon="mdi:dog" observer="false" />
 			</span>
-			<Calendar bind:selected={$form.age} name="age" />
+			<input type="hidden" name="age" bind:value={$form.age} />
+			<Calendar bind:selected={$form.age} />
 			{#if $errors.age}<p class="text-error-500-400-token">{$errors.age}</p>{/if}
 		</div>
 	</div>

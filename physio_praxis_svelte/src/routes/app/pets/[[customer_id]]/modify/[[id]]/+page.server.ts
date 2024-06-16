@@ -8,10 +8,10 @@ const schema = z.object({
 	id: z.number().optional(),
 	customer_id: z.number(),
 	name: z.string().min(2, 'Haustier Name sollte mindestens 2 Zeichen lang sein.'),
-	species: z.string().min(2, 'Haustier Art sollte mindestens 2 Zeichen lang sein.'),
-	breed: z.string().min(2, 'Haustier Rasse sollte mindestens 2 Zeichen lang sein.'),
+	species: z.string().optional(),
+	breed: z.string().optional(),
 	medical_history: z.string(),
-	age: z.date()
+	age: z.date().optional().nullable()
 });
 
 export const load = async ({ params, locals: { supabase } }) => {
@@ -27,12 +27,12 @@ export const load = async ({ params, locals: { supabase } }) => {
 		}
 		const pet = data as Pet;
 		(await form).data = {
-			age: new Date(pet.age!),
-			breed: pet.breed,
-			customer_id: pet.customer_id,
-			medical_history: pet.medical_history,
-			name: pet.name,
-			species: pet.species,
+			age: pet.age === null ? null : new Date(pet.age),
+			breed: pet.breed ?? '',
+			customer_id: pet.customer_id ?? 0,
+			medical_history: pet.medical_history ?? '',
+			name: pet.name ?? '',
+			species: pet.species ?? '',
 			id: pet.pet_id
 		};
 	}
@@ -62,7 +62,7 @@ export const actions = {
 		// edit mode
 		if (form.data.id) {
 			const pet = {
-				age: form.data.age,
+				age: form.data.age?.toDateString() ?? null,
 				breed: form.data.breed,
 				customer_id: customerId,
 				medical_history: form.data.medical_history,
@@ -82,7 +82,7 @@ export const actions = {
 			// add mode
 		} else {
 			const pet = {
-				age: form.data.age,
+				age: form.data.age?.toDateString(),
 				breed: form.data.breed,
 				customer_id: customerId,
 				medical_history: form.data.medical_history,

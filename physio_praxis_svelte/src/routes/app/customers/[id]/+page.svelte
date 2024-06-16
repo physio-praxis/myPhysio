@@ -179,10 +179,10 @@
 							<tr>
 								<td>{i + 1}</td>
 								<td>{pet.name}</td>
-								<td>{pet.species}</td>
-								<td>{pet.breed}</td>
+								<td>{pet.species ?? ''}</td>
+								<td>{pet.breed ?? ''}</td>
 								<td>{formatDateToGerman(pet.age)}</td>
-								<td class="w-full">{pet.medical_history}</td>
+								<td class="w-full">{pet.medical_history ?? ''}</td>
 								<td class="flex gap-2">
 									<a
 										href="/app/pets/{customer.customer_id}/modify/{pet.pet_id}"

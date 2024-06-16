@@ -1,5 +1,5 @@
 export function formatDateToGerman(dateString: string | null) {
-	if (dateString === null) return '-';
+	if (dateString === null) return '';
 	const date = new Date(dateString);
 
 	const options: Intl.DateTimeFormatOptions = {
