@@ -32,6 +32,7 @@
 			type: 'confirm',
 			title: 'Löschen bestätigen',
 			body: `Sind Sie sicher, dass Sie den Benutzer (${customerName}) löschen möchten?`,
+			buttonTextConfirm: 'Bestätigen',
 			response: (r: boolean) => (r ? confirmDeleteUser(customerId) : undefined)
 		};
 		modalStore.trigger(modal);

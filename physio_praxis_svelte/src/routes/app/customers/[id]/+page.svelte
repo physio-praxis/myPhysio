@@ -47,6 +47,7 @@
 			type: 'confirm',
 			title: 'Löschen bestätigen',
 			body: `Sind Sie sicher, dass Sie den Haustier (${petName}) löschen möchten?`,
+			buttonTextConfirm: 'Bestätigen',
 			response: (r: boolean) => (r ? confirmDeletePet(petId) : undefined)
 		};
 		modalStore.trigger(modal);
