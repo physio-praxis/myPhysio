@@ -87,13 +87,6 @@ export type Database = {
 						referencedColumns: ['customer_id'];
 					},
 					{
-						foreignKeyName: 'appointment_pet_id_fkey';
-						columns: ['pet_id'];
-						isOneToOne: false;
-						referencedRelation: 'pet';
-						referencedColumns: ['pet_id'];
-					},
-					{
 						foreignKeyName: 'appointment_status_id_fkey';
 						columns: ['status_id'];
 						isOneToOne: false;
@@ -229,7 +222,7 @@ export type Database = {
 					medical_history: string | null;
 					name: string | null;
 					pet_id: number;
-					species_id: number | null;
+					species: string | null;
 				};
 				Insert: {
 					age?: string | null;
@@ -238,7 +231,7 @@ export type Database = {
 					medical_history?: string | null;
 					name?: string | null;
 					pet_id?: number;
-					species_id?: number | null;
+					species?: string | null;
 				};
 				Update: {
 					age?: string | null;
@@ -247,29 +240,22 @@ export type Database = {
 					medical_history?: string | null;
 					name?: string | null;
 					pet_id?: number;
-					species_id?: number | null;
+					species?: string | null;
 				};
 				Relationships: [
 					{
-						foreignKeyName: 'pet_customer_id_fkey';
+						foreignKeyName: 'pet_customer_id_fkey1';
 						columns: ['customer_id'];
 						isOneToOne: false;
 						referencedRelation: 'customer';
 						referencedColumns: ['customer_id'];
 					},
 					{
-						foreignKeyName: 'pet_customer_id_fkey';
+						foreignKeyName: 'pet_customer_id_fkey1';
 						columns: ['customer_id'];
 						isOneToOne: false;
 						referencedRelation: 'customer_pet_overview';
 						referencedColumns: ['customer_id'];
-					},
-					{
-						foreignKeyName: 'pet_species_id_fkey';
-						columns: ['species_id'];
-						isOneToOne: false;
-						referencedRelation: 'species';
-						referencedColumns: ['species_id'];
 					}
 				];
 			};
@@ -299,13 +285,6 @@ export type Database = {
 						isOneToOne: false;
 						referencedRelation: 'medical_issue';
 						referencedColumns: ['medical_issue_id'];
-					},
-					{
-						foreignKeyName: 'pet_medical_issue_pet_id_fkey';
-						columns: ['pet_id'];
-						isOneToOne: false;
-						referencedRelation: 'pet';
-						referencedColumns: ['pet_id'];
 					}
 				];
 			};
@@ -388,21 +367,6 @@ export type Database = {
 						referencedColumns: ['product_id'];
 					}
 				];
-			};
-			species: {
-				Row: {
-					name: string | null;
-					species_id: number;
-				};
-				Insert: {
-					name?: string | null;
-					species_id?: number;
-				};
-				Update: {
-					name?: string | null;
-					species_id?: number;
-				};
-				Relationships: [];
 			};
 			treatment: {
 				Row: {

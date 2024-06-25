@@ -2,18 +2,62 @@
 	import Head from '$lib/components/Head.svelte';
 	import { HeadTags } from '$lib/types/classes';
 	import type { CustomerPetOverview } from '$lib/types/types';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import axios from 'axios';
+	import {
+		ProgressRadial,
+		getModalStore,
+		getToastStore,
+		type ModalSettings,
+		type ToastSettings
+	} from '@skeletonlabs/skeleton';
+	import axios, { AxiosError } from 'axios';
 	import 'iconify-icon';
 
-	let customerPetOverviewPromise: Promise<CustomerPetOverview[]> = axios
-		.get<CustomerPetOverview[]>('/app/customers')
-		.then((response) => response.data)
-		.catch((error) => {
-			return Promise.reject(error);
-		});
-
 	const headTags = new HeadTags('MyPhysio Customers', 'a list of your customers at MyPhysio');
+	const modalStore = getModalStore();
+	const toastStore = getToastStore();
+
+	let customerPetOverviewPromise: Promise<CustomerPetOverview[]> = getPetOverviewPromise();
+
+	async function getPetOverviewPromise() {
+		try {
+			const response = await axios.get<CustomerPetOverview[]>('/app/customers');
+			return response.data;
+		} catch (error) {
+			return await Promise.reject(error);
+		}
+	}
+
+	function deleteCustomer(customerId: number, customerName: string) {
+		const modal: ModalSettings = {
+			type: 'confirm',
+			title: 'Löschen bestätigen',
+			body: `Sind Sie sicher, dass Sie den Benutzer (${customerName}) löschen möchten?`,
+			buttonTextConfirm: 'Bestätigen',
+			response: (r: boolean) => (r ? confirmDeleteUser(customerId) : undefined)
+		};
+		modalStore.trigger(modal);
+	}
+
+	function confirmDeleteUser(customerId: number) {
+		axios
+			.delete(`/app/customers/${customerId}`)
+			.then(() => {
+				const t: ToastSettings = {
+					message: 'Kunde wurde erfolgreich gelöscht',
+					background: 'variant-filled-warning'
+				};
+				customerPetOverviewPromise = getPetOverviewPromise();
+				toastStore.trigger(t);
+			})
+			.catch((error: AxiosError) => {
+				const modal: ModalSettings = {
+					type: 'alert',
+					title: 'Fehler',
+					body: error.message
+				};
+				modalStore.trigger(modal);
+			});
+	}
 </script>
 
 <Head {headTags} />
@@ -27,7 +71,7 @@
 		</div>
 	</div>
 	<a
-		href="/app/customers/add"
+		href="/app/customers/modify"
 		class="w-12 btn-icon variant-filled-primary"
 		title="Kunde hinzufügen"
 	>
@@ -43,10 +87,8 @@
 	{:then customerPetOverview}
 		{#if customerPetOverview.length > 0}
 			{#each customerPetOverview as customerPet}
-				<a href="/" class="card p-4 w-full">
-					<div
-						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4"
-					>
+				<a href="/app/customers/{customerPet.customer_id}" class="card p-4 w-full">
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
 						<p class="text-primary-600-300-token">Kunde</p>
 						<p>{customerPet.customer_name}</p>
 						<p>{customerPet.phone_number}</p>
@@ -60,6 +102,23 @@
 							<p>{pet.pet_age}</p>
 							<p>{pet.pet_medical_history}</p>
 						{/each}
+						<div class="flex w-full h-full col-span-6 justify-end gap-x-4">
+							<button
+								class="btn variant-filled-error"
+								title="löschen"
+								on:click|preventDefault={() =>
+									deleteCustomer(customerPet.customer_id, customerPet.customer_name)}
+							>
+								<iconify-icon class="text-2xl" icon="mdi:delete" observer="false" />
+							</button>
+							<a
+								href="/app/customers/modify/{customerPet.customer_id}"
+								class="btn variant-filled-secondary"
+								title="bearbeiten"
+							>
+								<iconify-icon class="text-2xl" icon="mdi:edit" observer="false" />
+							</a>
+						</div>
 					</div>
 				</a>
 			{/each}

@@ -11,7 +11,7 @@ const schema = z.object({
 
 export const load = async () => {
 	const form = superValidate(zod(schema));
-	return { form };
+	return { form: await form };
 };
 
 export const actions = {
