@@ -1,16 +1,17 @@
 <script lang="ts">
 	import '../app.postcss';
 
-	// Floating UI for Popups
-	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
-	import { Modal, Toast, storePopup } from '@skeletonlabs/skeleton';
-	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+	import { Toaster } from '@skeletonlabs/skeleton-svelte';
+	import { toaster } from '$lib/components/skeleton/toaster';
 
 	// modals
-	import { initializeStores } from '@skeletonlabs/skeleton';
-	initializeStores();
+
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 </script>
 
-<Modal buttonTextCancel="Abbrechen" />
-<Toast />
-<slot />
+<Toaster {toaster}></Toaster>
+{@render children?.()}

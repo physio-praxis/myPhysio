@@ -1,14 +1,11 @@
+<!-- @migration-task Error while migrating Svelte code: `<a>` is invalid inside `<a>` -->
 <script lang="ts">
 	import Head from '$lib/components/Head.svelte';
 	import { HeadTags } from '$lib/types/classes';
 	import type { CustomerPetOverview } from '$lib/types/types';
 	import {
-		ProgressRadial,
-		getModalStore,
-		getToastStore,
 		type ModalSettings,
-		type ToastSettings
-	} from '@skeletonlabs/skeleton';
+		type ToastSettings, ProgressRing } from '@skeletonlabs/skeleton-svelte';
 	import axios, { AxiosError } from 'axios';
 	import 'iconify-icon';
 
@@ -44,7 +41,7 @@
 			.then(() => {
 				const t: ToastSettings = {
 					message: 'Kunde wurde erfolgreich gelöscht',
-					background: 'variant-filled-warning'
+					background: 'preset-filled-warning-500'
 				};
 				customerPetOverviewPromise = getPetOverviewPromise();
 				toastStore.trigger(t);
@@ -72,7 +69,7 @@
 	</div>
 	<a
 		href="/app/customers/modify"
-		class="w-12 btn-icon variant-filled-primary"
+		class="w-12 btn-icon preset-filled-primary-500"
 		title="Kunde hinzufügen"
 	>
 		<iconify-icon class="text-2xl" icon="mdi:user-add" observer="false" />
@@ -82,20 +79,20 @@
 	{#await customerPetOverviewPromise}
 		<div class="w-full h-full flex flex-col items-center justify-center gap-4">
 			<p>Kunden werden geladen...</p>
-			<ProgressRadial width="w-16" meter="stroke-primary-500" track="stroke-primary-500/30" />
+			<ProgressRing width="w-16" meter="stroke-primary-500" track="stroke-primary-500/30" />
 		</div>
 	{:then customerPetOverview}
 		{#if customerPetOverview.length > 0}
 			{#each customerPetOverview as customerPet}
 				<a href="/app/customers/{customerPet.customer_id}" class="card p-4 w-full">
 					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
-						<p class="text-primary-600-300-token">Kunde</p>
+						<p class="text-primary-700-300">Kunde</p>
 						<p>{customerPet.customer_name}</p>
 						<p>{customerPet.phone_number}</p>
 						<p>{customerPet.email}</p>
 						<p class="col-span-full md:col-span-2 mb-4">{customerPet.address}</p>
 						{#each customerPet.pets as pet, key}
-							<p class="text-primary-600-300-token">Pet #{key + 1}</p>
+							<p class="text-primary-700-300">Pet #{key + 1}</p>
 							<p>{pet.pet_name}</p>
 							<p>{pet.pet_species}</p>
 							<p>{pet.pet_breed}</p>
@@ -104,7 +101,7 @@
 						{/each}
 						<div class="flex w-full h-full col-span-6 justify-end gap-x-4">
 							<button
-								class="btn variant-filled-error"
+								class="btn preset-filled-error-500"
 								title="löschen"
 								on:click|preventDefault={() =>
 									deleteCustomer(customerPet.customer_id, customerPet.customer_name)}
@@ -113,7 +110,7 @@
 							</button>
 							<a
 								href="/app/customers/modify/{customerPet.customer_id}"
-								class="btn variant-filled-secondary"
+								class="btn preset-filled-secondary-500"
 								title="bearbeiten"
 							>
 								<iconify-icon class="text-2xl" icon="mdi:edit" observer="false" />

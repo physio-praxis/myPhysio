@@ -3,23 +3,25 @@
 	import { HeadTags } from '$lib/types/classes';
 	import { superForm } from 'sveltekit-superforms';
 	import {
-		getModalStore,
-		getToastStore,
 		type ModalSettings,
 		type ToastSettings
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 
-	export let data;
+	interface Props {
+		data: any;
+	}
 
-	$: headTags = new HeadTags(
+	let { data }: Props = $props();
+
+	let headTags = $derived(new HeadTags(
 		`MyPhysio ${$form.id ? 'edit' : 'add'} customer`,
 		$form.id
 			? 'Edit existing customer from your customers in MyPhysio'
 			: 'add a new customer to your customers in MyPhysio'
-	);
+	));
 
 	const { form, errors, enhance } = superForm(data?.form, {
 		onError({ result }) {
@@ -36,7 +38,7 @@
 					message: $form.id
 						? 'Kunde wurde erfolgreich bearbeitet!'
 						: 'Kunde wurde erfolgreich erstellt!',
-					background: 'variant-filled-warning'
+					background: 'preset-filled-warning-500'
 				};
 				toastStore.trigger(t);
 			}
@@ -58,7 +60,7 @@
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Vorname
-				<iconify-icon icon="mdi:person" observer="false" />
+				<iconify-icon icon="mdi:person" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -68,12 +70,12 @@
 				aria-invalid={$errors.firstName ? 'true' : undefined}
 				bind:value={$form.firstName}
 			/>
-			{#if $errors.firstName}<p class="text-error-500-400-token">{$errors.firstName}</p>{/if}
+			{#if $errors.firstName}<p class="text-error-600-400">{$errors.firstName}</p>{/if}
 		</label>
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Nachname
-				<iconify-icon icon="mdi:person" observer="false" />
+				<iconify-icon icon="mdi:person" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -83,7 +85,7 @@
 				aria-invalid={$errors.lastName ? 'true' : undefined}
 				bind:value={$form.lastName}
 			/>
-			{#if $errors.lastName}<p class="text-error-500-400-token">{$errors.lastName}</p>{/if}
+			{#if $errors.lastName}<p class="text-error-600-400">{$errors.lastName}</p>{/if}
 		</label>
 	</div>
 
@@ -91,7 +93,7 @@
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Telefonnummer
-				<iconify-icon icon="mdi:telephone" observer="false" />
+				<iconify-icon icon="mdi:telephone" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -101,12 +103,12 @@
 				aria-invalid={$errors.phoneNumber ? 'true' : undefined}
 				bind:value={$form.phoneNumber}
 			/>
-			{#if $errors.phoneNumber}<p class="text-error-500-400-token">{$errors.phoneNumber}</p>{/if}
+			{#if $errors.phoneNumber}<p class="text-error-600-400">{$errors.phoneNumber}</p>{/if}
 		</label>
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				E-Mail
-				<iconify-icon icon="mdi:email" observer="false" />
+				<iconify-icon icon="mdi:email" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -116,14 +118,14 @@
 				aria-invalid={$errors.email ? 'true' : undefined}
 				bind:value={$form.email}
 			/>
-			{#if $errors.email}<p class="text-error-500-400-token">{$errors.email}</p>{/if}
+			{#if $errors.email}<p class="text-error-600-400">{$errors.email}</p>{/if}
 		</label>
 	</div>
 
 	<label class="label w-full">
 		<span class="flex justify-start items-center gap-1">
 			Adresse
-			<iconify-icon icon="mdi:map-marker" observer="false" />
+			<iconify-icon icon="mdi:map-marker" observer="false"></iconify-icon>
 		</span>
 		<input
 			class="input"
@@ -133,12 +135,12 @@
 			aria-invalid={$errors.address ? 'true' : undefined}
 			bind:value={$form.address}
 		/>
-		{#if $errors.address}<p class="text-error-500-400-token">{$errors.address}</p>{/if}
+		{#if $errors.address}<p class="text-error-600-400">{$errors.address}</p>{/if}
 	</label>
 
 	<div class="flex flex-col-reverse sm:flex-row justify-end gap-4 sm:gap-2">
-		<a href="/app/customers" class="btn btn-md mr-2 variant-ghost-error">Abbrechen</a>
-		<button type="submit" class="btn btn-md mr-2 variant-ghost-primary"
+		<a href="/app/customers" class="btn btn-md mr-2 preset-tonal-error border border-error-500">Abbrechen</a>
+		<button type="submit" class="btn btn-md mr-2 preset-tonal-primary border border-primary-500"
 			>Kunde {$form.id ? 'speichern' : 'hinzufügen'}</button
 		>
 	</div>

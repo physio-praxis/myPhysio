@@ -11,14 +11,18 @@
 		maxDate: new Date()
 	};
 
-	export let selected: Date | null | undefined;
+	interface Props {
+		selected: Date | null | undefined;
+	}
+
+	let { selected = $bindable() }: Props = $props();
 
 	flatpickr.localize(German);
 </script>
 
 <Flatpickr
-	class="w-full transition duration-200 bg-surface-200-700-token focus:brightness-105 !cursor-pointer
-hover:brightness-105 !ring-0 border-token border-surface-400-500-token focus-within:border-primary-500 rounded-token"
+	class="w-full transition duration-200 bg-surface-200-800 focus:brightness-105 !cursor-pointer
+hover:brightness-105 !ring-0 border border-surface-500 focus-within:border-primary-500 rounded-base"
 	{options}
 	bind:value={selected}
 />

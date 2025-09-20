@@ -1,7 +1,11 @@
 <script lang="ts">
 	import type { HeadTags } from '$lib/types/classes';
 
-	export let headTags: HeadTags;
+	interface Props {
+		headTags: HeadTags;
+	}
+
+	let { headTags }: Props = $props();
 </script>
 
 <svelte:head>

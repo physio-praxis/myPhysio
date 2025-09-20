@@ -3,26 +3,28 @@
 	import { HeadTags } from '$lib/types/classes';
 	import { superForm } from 'sveltekit-superforms';
 	import {
-		getModalStore,
-		getToastStore,
 		type ModalSettings,
 		type ToastSettings
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 	import Calendar from '$lib/components/Calendar.svelte';
 
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 
-	export let data;
+	interface Props {
+		data: any;
+	}
 
-	$: headTags = new HeadTags(
+	let { data }: Props = $props();
+
+	let headTags = $derived(new HeadTags(
 		`MyPhysio ${$form.id ? 'edit' : 'add'} Pet`,
 		$form.id
 			? 'Edit existing Pet from your pets in MyPhysio'
 			: 'add a new Pet to your pets in MyPhysio'
-	);
+	));
 
-	$: customer_id = data.customer_id;
+	let customer_id = $derived(data.customer_id);
 
 	const { form, errors, enhance } = superForm(data?.form, {
 		onError({ result }) {
@@ -39,7 +41,7 @@
 					message: $form.id
 						? 'Haustier wurde erfolgreich bearbeitet!'
 						: 'Haustier wurde erfolgreich erstellt!',
-					background: 'variant-filled-warning'
+					background: 'preset-filled-warning-500'
 				};
 				toastStore.trigger(t);
 			}
@@ -62,7 +64,7 @@
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Name
-				<iconify-icon icon="mdi:pets" observer="false" />
+				<iconify-icon icon="mdi:pets" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -72,17 +74,17 @@
 				aria-invalid={$errors.name ? 'true' : undefined}
 				bind:value={$form.name}
 			/>
-			{#if $errors.name}<p class="text-error-500-400-token">{$errors.name}</p>{/if}
+			{#if $errors.name}<p class="text-error-600-400">{$errors.name}</p>{/if}
 		</label>
 
 		<div class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Alter
-				<iconify-icon icon="mdi:dog" observer="false" />
+				<iconify-icon icon="mdi:dog" observer="false"></iconify-icon>
 			</span>
 			<input type="hidden" name="age" bind:value={$form.age} />
 			<Calendar bind:selected={$form.age} />
-			{#if $errors.age}<p class="text-error-500-400-token">{$errors.age}</p>{/if}
+			{#if $errors.age}<p class="text-error-600-400">{$errors.age}</p>{/if}
 		</div>
 	</div>
 
@@ -90,7 +92,7 @@
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Art
-				<iconify-icon icon="mdi:horse" observer="false" />
+				<iconify-icon icon="mdi:horse" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -100,12 +102,12 @@
 				aria-invalid={$errors.species ? 'true' : undefined}
 				bind:value={$form.species}
 			/>
-			{#if $errors.species}<p class="text-error-500-400-token">{$errors.species}</p>{/if}
+			{#if $errors.species}<p class="text-error-600-400">{$errors.species}</p>{/if}
 		</label>
 		<label class="label w-full">
 			<span class="flex justify-start items-center gap-1">
 				Rasse
-				<iconify-icon icon="mdi:dog-side" observer="false" />
+				<iconify-icon icon="mdi:dog-side" observer="false"></iconify-icon>
 			</span>
 			<input
 				class="input"
@@ -115,14 +117,14 @@
 				aria-invalid={$errors.breed ? 'true' : undefined}
 				bind:value={$form.breed}
 			/>
-			{#if $errors.breed}<p class="text-error-500-400-token">{$errors.breed}</p>{/if}
+			{#if $errors.breed}<p class="text-error-600-400">{$errors.breed}</p>{/if}
 		</label>
 	</div>
 
 	<label class="label w-full">
 		<span class="flex justify-start items-center gap-1">
 			Medizinische Vorgeschichte
-			<iconify-icon icon="mdi:medical-bag" observer="false" />
+			<iconify-icon icon="mdi:medical-bag" observer="false"></iconify-icon>
 		</span>
 		<input
 			class="input"
@@ -132,14 +134,14 @@
 			aria-invalid={$errors.medical_history ? 'true' : undefined}
 			bind:value={$form.medical_history}
 		/>
-		{#if $errors.medical_history}<p class="text-error-500-400-token">
+		{#if $errors.medical_history}<p class="text-error-600-400">
 				{$errors.medical_history}
 			</p>{/if}
 	</label>
 
 	<div class="flex flex-col-reverse sm:flex-row justify-end gap-4 sm:gap-2">
-		<a href="/app/customers/{customer_id}" class="btn btn-md mr-2 variant-ghost-error">Abbrechen</a>
-		<button type="submit" class="btn btn-md mr-2 variant-ghost-primary"
+		<a href="/app/customers/{customer_id}" class="btn btn-md mr-2 preset-tonal-error border border-error-500">Abbrechen</a>
+		<button type="submit" class="btn btn-md mr-2 preset-tonal-primary border border-primary-500"
 			>Haustier {$form.id ? 'speichern' : 'hinzufügen'}</button
 		>
 	</div>

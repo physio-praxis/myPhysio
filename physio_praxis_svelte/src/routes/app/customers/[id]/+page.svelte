@@ -4,12 +4,8 @@
 	import { HeadTags } from '$lib/types/classes';
 	import type { Customer, Pet } from '$lib/types/types.js';
 	import {
-		ProgressRadial,
-		getModalStore,
-		getToastStore,
 		type ModalSettings,
-		type ToastSettings
-	} from '@skeletonlabs/skeleton';
+		type ToastSettings, ProgressRing } from '@skeletonlabs/skeleton-svelte';
 	import axios, { AxiosError } from 'axios';
 	import { onMount } from 'svelte';
 
@@ -17,13 +13,17 @@
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 
-	export let data;
+	interface Props {
+		data: any;
+	}
 
-	let customer: Customer;
+	let { data }: Props = $props();
 
-	$: customer = data.customer;
+	let customer: Customer = $derived(data.customer);
 
-	let petsPromise: Promise<Pet[]>;
+	
+
+	let petsPromise: Promise<Pet[]> = $state();
 
 	onMount(() => {
 		petsPromise = getPetsPromise();
@@ -59,7 +59,7 @@
 			.then(() => {
 				const t: ToastSettings = {
 					message: 'Haustier wurde erfolgreich gelöscht',
-					background: 'variant-filled-warning'
+					background: 'preset-filled-warning-500'
 				};
 				toastStore.trigger(t);
 				petsPromise = getPetsPromise();
@@ -82,18 +82,18 @@
 <section class="w-full lg:w-[940px]">
 	<div class="flex flex-col justify-between">
 		<h2 class="h2 mb-4">Kundeninformation</h2>
-		<table class="table table-hover">
+		<table class="table ">
 			<tbody class="*:flex *:justify-center *:items-center">
 				<tr>
 					<th class="p-2">Name:</th>
 					<td class="w-full"><div class="text-xl">{customer.name}</div></td>
 					<td>
 						<button
-							class="btn variant-filled-secondary"
+							class="btn preset-filled-secondary-500"
 							title="kopieren"
-							on:click={() => copyToClipboard(customer.name ?? '')}
+							onclick={() => copyToClipboard(customer.name ?? '')}
 						>
-							<iconify-icon icon="mdi:content-copy" observer="false" />
+							<iconify-icon icon="mdi:content-copy" observer="false"></iconify-icon>
 						</button>
 					</td>
 				</tr>
@@ -102,11 +102,11 @@
 					<td class="w-full"><div class="text-xl">{customer.phone_number}</div></td>
 					<td>
 						<button
-							class="btn variant-filled-secondary"
+							class="btn preset-filled-secondary-500"
 							title="kopieren"
-							on:click={() => copyToClipboard(customer.phone_number ?? '')}
+							onclick={() => copyToClipboard(customer.phone_number ?? '')}
 						>
-							<iconify-icon icon="mdi:content-copy" observer="false" />
+							<iconify-icon icon="mdi:content-copy" observer="false"></iconify-icon>
 						</button>
 					</td>
 				</tr>
@@ -115,11 +115,11 @@
 					<td class="w-full"><div class="text-xl">{customer.email}</div></td>
 					<td>
 						<button
-							class="btn variant-filled-secondary"
+							class="btn preset-filled-secondary-500"
 							title="kopieren"
-							on:click={() => copyToClipboard(customer.email ?? '')}
+							onclick={() => copyToClipboard(customer.email ?? '')}
 						>
-							<iconify-icon icon="mdi:content-copy" observer="false" />
+							<iconify-icon icon="mdi:content-copy" observer="false"></iconify-icon>
 						</button>
 					</td>
 				</tr>
@@ -128,11 +128,11 @@
 					<td class="w-full"><div class="text-xl">{customer.address}</div></td>
 					<td>
 						<button
-							class="btn variant-filled-secondary"
+							class="btn preset-filled-secondary-500"
 							title="kopieren"
-							on:click={() => copyToClipboard(customer.address ?? '')}
+							onclick={() => copyToClipboard(customer.address ?? '')}
 						>
-							<iconify-icon icon="mdi:content-copy" observer="false" />
+							<iconify-icon icon="mdi:content-copy" observer="false"></iconify-icon>
 						</button>
 					</td>
 				</tr>
@@ -146,13 +146,13 @@
 			<h2 class="h2 mb-4">Haustiere</h2>
 			<a
 				href="/app/pets/{customer.customer_id}/modify"
-				class="w-12 h-12 btn-icon variant-filled-primary"
+				class="w-12 h-12 btn-icon preset-filled-primary-500"
 				title="Haustier hinzufügen"
 			>
-				<iconify-icon class="text-2xl" icon="mdi:plus" observer="false" />
+				<iconify-icon class="text-2xl" icon="mdi:plus" observer="false"></iconify-icon>
 			</a>
 		</div>
-		<table class="table table-hover">
+		<table class="table ">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -169,7 +169,7 @@
 					{#await petsPromise}
 						<div class="w-full h-full flex flex-col items-center justify-center gap-4">
 							<p>Haustiere werden geladen...</p>
-							<ProgressRadial
+							<ProgressRing
 								width="w-16"
 								meter="stroke-primary-500"
 								track="stroke-primary-500/30"
@@ -187,17 +187,17 @@
 								<td class="flex gap-2">
 									<a
 										href="/app/pets/{customer.customer_id}/modify/{pet.pet_id}"
-										class="btn variant-filled-secondary"
+										class="btn preset-filled-secondary-500"
 										title="bearbeiten"
 									>
-										<iconify-icon class="text-2xl" icon="mdi:edit" observer="false" />
+										<iconify-icon class="text-2xl" icon="mdi:edit" observer="false"></iconify-icon>
 									</a>
 									<button
-										class="btn variant-filled-error"
+										class="btn preset-filled-error-500"
 										title="löschen"
-										on:click={() => deletePet(pet.pet_id, pet.name)}
+										onclick={() => deletePet(pet.pet_id, pet.name)}
 									>
-										<iconify-icon class="text-2xl" icon="mdi:delete" observer="false" />
+										<iconify-icon class="text-2xl" icon="mdi:delete" observer="false"></iconify-icon>
 									</button>
 								</td>
 							</tr>

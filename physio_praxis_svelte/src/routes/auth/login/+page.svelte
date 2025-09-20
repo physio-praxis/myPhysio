@@ -2,7 +2,11 @@
 	import 'iconify-icon';
 	import { superForm } from 'sveltekit-superforms';
 
-	export let data;
+	interface Props {
+		data: any;
+	}
+
+	let { data }: Props = $props();
 
 	const { form, errors, enhance } = superForm(data?.form);
 </script>
@@ -11,10 +15,10 @@
 	<h1 class="h1"><span class="gradient-heading">Physio Praxis</span></h1>
 	<hr class="w-1/5" />
 	<form class="flex flex-col space-y-4 sm:min-w-96" method="POST" use:enhance>
-		{#if $errors.email}<p class="text-error-500-400-token">{$errors.email}</p>{/if}
+		{#if $errors.email}<p class="text-error-600-400">{$errors.email}</p>{/if}
 		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">
-				<iconify-icon class="text-2xl" icon="mdi:email" observer="false" />
+				<iconify-icon class="text-2xl" icon="mdi:email" observer="false"></iconify-icon>
 			</div>
 			<input
 				class="input rounded-l-none"
@@ -28,10 +32,10 @@
 			/>
 		</div>
 
-		{#if $errors.password}<p class="text-error-500-400-token">{$errors.password}</p>{/if}
+		{#if $errors.password}<p class="text-error-600-400">{$errors.password}</p>{/if}
 		<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 			<div class="input-group-shim">
-				<iconify-icon class="text-2xl" icon="mdi:form-textbox-password" observer="false" />
+				<iconify-icon class="text-2xl" icon="mdi:form-textbox-password" observer="false"></iconify-icon>
 			</div>
 			<input
 				class="input rounded-l-none"
@@ -43,6 +47,6 @@
 				bind:value={$form.password}
 			/>
 		</div>
-		<button class="btn variant-filled-primary">Anmelden</button>
+		<button class="btn preset-filled-primary-500">Anmelden</button>
 	</form>
 </main>
