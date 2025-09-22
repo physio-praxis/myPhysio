@@ -76,5 +76,5 @@ export async function invalidateSession(sessionToken: string) {
 }
 
 export async function invalidateAllUserSessions(userId: string) {
-    await db.delete(userSession).where(eq(userSession.id, userId));
+    await db.delete(userSession).where(eq(userSession.userId, userId));
 }

@@ -46,6 +46,6 @@ export const actions: Actions = {
         setSessionCookie(cookies, session);
 
         // redirect to app
-        return redirect(303, "/");
+        return redirect(303, "/app");
     }
 };
