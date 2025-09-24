@@ -9,7 +9,7 @@
     const navInfo = [
       { label: 'Kalendar', href: '/app/calendar', icon: Calendar },
       { label: 'Kunde', href: '/app/customer', icon: User },
-      { label: 'Rechnung', href: '/app/bill', icon: ReceiptEuro },
+      { label: 'Rechnung', href: '/app/invoice', icon: ReceiptEuro },
       { label: 'Behandlung', href: '/app/treatment', icon: Stethoscope },
       { label: 'Einstellungen', href: '/app/settings', icon: Settings, classes:'mt-auto' }
     ];
