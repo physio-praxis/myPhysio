@@ -4,7 +4,7 @@
     import { page } from '$app/state';
 	  import { isMobile } from '$lib/stores/breakpoint';
 
-    let value = $state('Kalendar');
+    let navBarValue = $state('Kalendar');
 
     const navInfo = [
       { label: 'Kalendar', href: '/app/calendar', icon: Calendar },
@@ -19,7 +19,7 @@
 </script>
 
 {#if $isMobile}
-  <Navigation.Bar {value} onValueChange={(newValue) => (value = newValue)}>
+  <Navigation.Bar value={navBarValue} onValueChange={(newValue) => (navBarValue = newValue)}>
     {#each navInfo as {label, href, icon}}
     {@const Icon = icon}
     <Navigation.Tile id={label} label={label} {href} title={label} selected={page.url.pathname.startsWith(href)}>
