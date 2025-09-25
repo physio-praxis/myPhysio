@@ -89,3 +89,9 @@ CREATE TABLE pet_medical_issue (
   medical_issue_id INTEGER REFERENCES medical_issue(medical_issue_id)
 );
 
+-- LUCIA Tables
+CREATE TABLE if not exists auth_user(
+  id text primary key,
+  email text,
+  supabase_user_id uuid unique
+)
