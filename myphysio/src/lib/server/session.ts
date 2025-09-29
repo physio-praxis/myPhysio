@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { db } from './db/db';
-import { authUser, userSession } from './db/schema';
+import { authUser, userSession, type InsertAuthUser } from './db/schema';
 import type { Cookies } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm/expressions';
 
 export const SESSION_COOKIE_NAME = 'myphysio_app_session';
 const SESSION_TTL_SECONDS = 604_800; // 7 days
@@ -22,10 +22,10 @@ export type SessionRecord = {
     expiresAt: Date;
 };
 
-export async function ensureAuthUser(params: { id: string; email: string | null }) {
+export async function ensureAuthUser(user: InsertAuthUser) {
     await db.insert(authUser)
-        .values({ id: params.id, email: params.email ?? null, supabaseUserId: params.id as unknown as string})
-        .onConflictDoUpdate({ target: authUser.id, set: { email: params.email ?? null }});
+        .values({ id: user.id, email: user.email ?? null, supabaseUserId: user.id as unknown as string})
+        .onConflictDoUpdate({ target: authUser.id, set: { email: user.email ?? null }});
 }
 
 export async function createSessionForUserId(userId: string, ttlSeconds = SESSION_TTL_SECONDS): Promise<SessionRecord> {
