@@ -44,7 +44,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: myphysio/pnpm-lock.yaml
 
       - name: install dependencies
         run: pnpm install --frozen-lockfile
