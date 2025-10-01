@@ -33,18 +33,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          package_json_file: package.json
+
       - name: setup node
         uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
-
-      - name: setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          package_json_file: package.json
 
       - name: install dependencies
         run: pnpm install --frozen-lockfile
