@@ -38,13 +38,13 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: myphysio/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Enable Corepack & activate pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10 --activate
-          pnpm -v
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          package_json_file: package.json
 
       - name: install dependencies
         run: pnpm install --frozen-lockfile
