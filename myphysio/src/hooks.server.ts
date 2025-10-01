@@ -1,7 +1,7 @@
 import type { Handle } from '@sveltejs/kit';
 import { readSession, refreshSessionIfNeeded } from '$lib/server/session';
 
-export const handle: Handle = async({ event, resolve }) => {
+export const handle: Handle = async ({ event, resolve }) => {
 	const session = await readSession(event.cookies);
 
 	if (session) {
@@ -18,4 +18,4 @@ export const handle: Handle = async({ event, resolve }) => {
 	}
 
 	return resolve(event);
-}
+};
