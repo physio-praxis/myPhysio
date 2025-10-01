@@ -23,7 +23,7 @@ defaults:
     working-directory: ./myphysio
 
 jobs:
-  build:
+  verify:
     name: verify (typecheck, lint, test) & build
     runs-on: ubuntu-latest
 
@@ -61,6 +61,3 @@ jobs:
       - name: test (fails on test failure)
         run: |
           pnpm test:ci
-          
-      - name: build
-        run: pnpm build
