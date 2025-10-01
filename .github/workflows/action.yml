@@ -1,0 +1,63 @@
+name: MyPhysio CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# saves time by cancelling in progress of the same branch
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: 
+  contents: read
+
+env:
+  CI: true
+
+defaults:
+  run:
+    working-directory: ./myphysio
+
+jobs:
+  verify:
+    name: verify (typecheck, lint, test) & build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          package_json_file: package.json
+
+      - name: setup node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: myphysio/pnpm-lock.yaml
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Copy .env.example to .env (bypass error when trying svelte check)
+        run: cp .env.example .env
+
+      - name: svelte check
+        run: pnpm check
+
+      - name: lint
+        run: pnpm lint
+
+      - name: test (fails on test failure)
+        run: |
+          pnpm test:ci
