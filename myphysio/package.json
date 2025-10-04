@@ -18,12 +18,15 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"db:seed": "tsx --env-file=.env scripts/seed.ts",
+		"db:seed:wipe": "tsx --env-file=.env scripts/seed.ts --wipe"
 	},
 	"devDependencies": {
 		"@electric-sql/pglite": "^0.3.10",
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.22.0",
+		"@faker-js/faker": "^10.0.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@skeletonlabs/skeleton": "^3.2.0",
@@ -37,6 +40,8 @@
 		"@types/node": "^22",
 		"@types/pg": "^8.15.5",
 		"@vitest/browser": "^3.2.3",
+		"commander": "^14.0.1",
+		"dotenv": "^17.2.3",
 		"drizzle-kit": "^0.30.2",
 		"drizzle-orm": "^0.40.0",
 		"eslint": "^9.22.0",
@@ -50,6 +55,7 @@
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
 		"tailwindcss": "^4.0.0",
+		"tsx": "^4.20.6",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.20.0",
 		"vite": "^7.0.4",
