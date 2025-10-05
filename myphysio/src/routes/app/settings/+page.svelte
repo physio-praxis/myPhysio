@@ -4,7 +4,7 @@
 	import { isMobile } from '$lib/stores/breakpoint';
 
 	function logout() {
-		goto(resolve('/auth/logout'));
+		goto(resolve('/auth/logout', {}));
 	}
 </script>
 

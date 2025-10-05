@@ -1,6 +1,6 @@
 import { createSessionForUserId, ensureAuthUser, setSessionCookie } from '$lib/server/session';
 import { supabaseAdmin, supabaseAnonServer } from '$lib/server/supabase';
-import { loginSchema } from '$lib/validation/auth/login';
+import { loginSchema } from '$lib/validation/auth/login.schema';
 import { zodToErrors } from '$lib/validation/helpers';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 
