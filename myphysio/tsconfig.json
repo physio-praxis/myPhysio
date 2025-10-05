@@ -12,7 +12,14 @@
 		"moduleResolution": "bundler",
 		"types": ["node", "svelte", "vite/client"]
 	},
-	"include": ["src", "scripts", "vite.config.ts"]
+	"include": [
+		"src",
+		"scripts",
+		"svelte.config.ts",
+		"vite.config.ts",
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/types"
+	]
 	// Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
 	// except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
 	//

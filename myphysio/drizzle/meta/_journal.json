@@ -15,6 +15,27 @@
       "when": 1759591898180,
       "tag": "0001_spooky_sleepwalker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759674075639,
+      "tag": "0002_green_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759674260046,
+      "tag": "0003_fluffy_mad_thinker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1759675422079,
+      "tag": "0004_hot_redwing",
+      "breakpoints": true
     }
   ]
 }
