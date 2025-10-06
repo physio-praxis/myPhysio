@@ -1,4 +1,4 @@
-import { eq, sql, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
+import { eq, relations, sql, type InferInsertModel, type InferSelectModel } from 'drizzle-orm';
 import {
 	pgTable,
 	text,
@@ -9,7 +9,9 @@ import {
 	date,
 	index,
 	boolean,
-	pgView
+	pgView,
+	numeric,
+	varchar
 } from 'drizzle-orm/pg-core';
 
 // ---------------------- Auth Tables ----------------------------
@@ -113,7 +115,91 @@ export const pet = pgTable(
 export type InsertPet = InferInsertModel<typeof pet>;
 export type SelectPet = InferSelectModel<typeof pet>;
 
+/** Invoice */
+export const invoice = pgTable(
+	'invoice',
+	{
+		invoiceId: serial('invoice_id').primaryKey(),
+		dateIssued: timestamp('date_issued', { withTimezone: true, mode: 'date' })
+			.notNull()
+			.defaultNow(),
+		amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+		customerId: integer('customer_id')
+			.notNull()
+			.references(() => customer.customerId, { onDelete: 'restrict', onUpdate: 'cascade' }),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow()
+	},
+	(t) => ({
+		idxInvoiceCustomer: index('idx_invoice_customer').on(t.customerId),
+		idxInvoiceDate: index('idx_invoice_date').on(t.dateIssued),
+		idxInvoiceCustomerDate: index('idx_invoice_customer_date').on(t.customerId, t.dateIssued)
+	})
+);
+export type InsertInvoice = InferInsertModel<typeof invoice>;
+
+/** Treatment */
+export const treatment = pgTable('treatment', {
+	treatmentId: serial('treatment_id').primaryKey(),
+	name: varchar('name', { length: 200 }).notNull(),
+	description: text('description'),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow()
+});
+export type InsertTreatment = InferInsertModel<typeof treatment>;
+
+/** Pet Treatment */
+export const petTreatment = pgTable(
+	'pet_treatment',
+	{
+		petTreatmentId: serial('pet_treatment_id').primaryKey(),
+		petId: integer('pet_id')
+			.notNull()
+			.references(() => pet.petId, { onDelete: 'cascade', onUpdate: 'cascade' }),
+		treatmentId: integer('treatmentId')
+			.notNull()
+			.references(() => treatment.treatmentId, { onDelete: 'restrict', onUpdate: 'cascade' }),
+		invoiceId: integer('invoice_id').references(() => invoice.invoiceId, {
+			onDelete: 'set null',
+			onUpdate: 'cascade'
+		}),
+		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow()
+	},
+	(t) => ({
+		idxPetTreatment_pet: index('idx_pettreatment_pet').on(t.petId),
+		idxPetTreatment_treatment: index('idx_pettreatment_treatment').on(t.treatmentId),
+		idxPetTreatment_invoice: index('idx_pettreatment_invoice').on(t.invoiceId)
+	})
+);
+export type InsertPetTreatment = InferInsertModel<typeof petTreatment>;
+
+// ------------------- Relations --------------------
+/** Invoice Customer */
+export const invoiceRelations = relations(invoice, ({ one }) => ({
+	customer: one(customer, {
+		fields: [invoice.customerId],
+		references: [customer.customerId]
+	})
+}));
+
+/** Pet Treatment */
+export const treatmentRelations = relations(treatment, ({ many }) => ({
+	petTreatments: many(petTreatment)
+}));
+
+/** Pet Treatment */
+export const petTreatmentRelations = relations(petTreatment, ({ one }) => ({
+	pet: one(pet, { fields: [petTreatment.petId], references: [pet.petId] }),
+	treatment: one(treatment, {
+		fields: [petTreatment.treatmentId],
+		references: [treatment.treatmentId]
+	}),
+	invoice: one(invoice, {
+		fields: [petTreatment.invoiceId],
+		references: [invoice.invoiceId]
+	})
+}));
+
 // ------------------- Views ------------------------
+/** Customer Search */
 export const customerSearchView = pgView('customer_search_view')
 	.with({ securityInvoker: true })
 	.as((queryBuilder) =>

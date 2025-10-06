@@ -9,11 +9,17 @@ import { faker } from '@faker-js/faker';
 import {
 	customer,
 	customerConsent,
+	invoice,
 	pet,
+	petTreatment,
 	species,
+	treatment,
 	type InsertCustomer,
+	type InsertInvoice,
 	type InsertPet,
-	type InsertSpecies
+	type InsertPetTreatment,
+	type InsertSpecies,
+	type InsertTreatment
 } from '$lib/server/db/schema';
 import { createHash, randomUUID } from 'node:crypto';
 import 'dotenv/config';
@@ -26,7 +32,10 @@ const ArgSchema = z.object({
 	wipe: z.boolean().default(false),
 	withFiles: z.coerce.boolean().default(false),
 	filesPer: z.coerce.number().int().min(1).max(10).default(5),
-	speciesCount: z.coerce.number().int().min(1).max(50).default(10)
+	speciesCount: z.coerce.number().int().min(1).max(50).default(10),
+	treatmentsCount: z.coerce.number().int().min(3).max(10).default(5),
+	avgInvoices: z.coerce.number().int().min(0).max(10).default(2),
+	avgPetTreatmentsPerPet: z.coerce.number().int().min(0).max(10).default(2)
 });
 
 function parseArgs() {
@@ -39,6 +48,9 @@ function parseArgs() {
 		.option('--filesPer <n>', 'how many customers get a file (1..10) (default 5)', '5')
 		.option('--speciesCount <n>', 'how many species (1..50) (default 10)', '10')
 		.option('--wipe', 'wipe tables before seeding', false)
+		.option('--treatmentsCount <n>', 'how many treatment types (3..10) (default 5)', '5')
+		.option('--avgInvoices <n>', 'avg invoices per customer (0..10) (default 2)', '2')
+		.option('--avgPetTreatmentsPerPet <n>', 'avg pet_treatments per pet (0..10) (default 2)', '2')
 		.showHelpAfterError(true)
 		.addHelpText(
 			'after',
@@ -46,6 +58,7 @@ function parseArgs() {
 Examples:
   pnpm db:seed
   pnpm db:seed --customers 50 --speciesCount 10 --maxPets 3 --filesPer 5 --withFiles --wipe
+  pnpm db:seed --treatmentsCount 12 --avgInvoices 3 --avgPetTreatmentsPerPet 2
   pnpm db:seed --wipe
             `
 		);
@@ -58,7 +71,10 @@ Examples:
 		maxPets: opts.maxPets,
 		wipe: opts.wipe,
 		withFiles: opts.withFiles,
-		filesPer: opts.filesPer
+		filesPer: opts.filesPer,
+		treatmentsCount: opts.treatmentsCount,
+		avgInvoices: opts.avgInvoices,
+		avgPetTreatmentsPerPet: opts.avgPetTreatmentsPerPet
 	});
 }
 
@@ -212,6 +228,8 @@ async function SeedPets(
 	if (petBatch.length) {
 		await db.insert(pet).values(petBatch);
 	}
+
+	return await db.select().from(pet);
 }
 
 const sha256Hex = (buf: Buffer) => createHash('sha256').update(buf).digest('hex');
@@ -258,6 +276,125 @@ async function SeedConsentFiles(
 	}
 }
 
+async function SeedTreatments(db: DB, count: number) {
+	console.log(`Inserting ${count} treatments...`);
+	const baseNames = [
+		'Vaccination',
+		'Deworming',
+		'Dental Cleaning',
+		'General Checkup',
+		'X-Ray',
+		'Ultrasound',
+		'Blood Test',
+		'Surgery',
+		'Wound Care',
+		'Allergy Test',
+		'Microchipping',
+		'Physiotherapy'
+	];
+
+	const list = faker.helpers
+		.uniqueArray(
+			() =>
+				`${faker.helpers.arrayElement(baseNames)} ${faker.helpers.maybe(() => faker.number.int({ min: 1, max: 3 }), { probability: 0.3 }) ?? ''}`,
+			count
+		)
+		.map((name) => name.trim());
+
+	const rows: InsertTreatment[] = list.map((name) => ({
+		name,
+		description: faker.lorem.sentence({ min: 4, max: 10 }),
+		createdAt: new Date()
+	}));
+
+	await db.insert(treatment).values(rows);
+	return await db.select().from(treatment);
+}
+
+async function SeedInvoices(
+	db: DB,
+	customers: Awaited<ReturnType<typeof SeedCustomers>>,
+	avgPerCustomer: number
+) {
+	console.log(`Inserting invoices (avg ${avgPerCustomer} per customer)...`);
+
+	const batch: InsertInvoice[] = [];
+	for (const cus of customers) {
+		const numberPerCustomer = faker.number.int({ min: 0, max: Math.max(0, avgPerCustomer * 2) });
+		for (let i = 0; i < numberPerCustomer; i++) {
+			const issued = faker.date.between({
+				from: new Date(Date.now() - 63_072_000_000), // last 2 years
+				to: new Date()
+			});
+			const amount = faker.number.float({ min: 20, max: 400, fractionDigits: 2 }).toFixed(2);
+			batch.push({
+				customerId: cus.customerId,
+				dateIssued: issued,
+				amount,
+				createdAt: issued
+			});
+		}
+	}
+
+	if (batch.length) await db.insert(invoice).values(batch);
+	const all = await db
+		.select()
+		.from(invoice)
+		.orderBy(desc(invoice.dateIssued), desc(invoice.invoiceId));
+	const map = new Map<number, typeof all>();
+	for (const inv of all) {
+		const arr = map.get(inv.customerId) ?? [];
+		arr.push(inv);
+		map.set(inv.customerId, arr);
+	}
+
+	return map;
+}
+
+async function SeedPetTreatments(
+	db: DB,
+	pets: Awaited<ReturnType<typeof SeedPets>>,
+	treatments: Awaited<ReturnType<typeof SeedTreatments>>,
+	invoicesByCustomer: Map<number, { invoiceId: number; customerId: number }[]>,
+	avgPerPet: number
+) {
+	console.log(`Inserting pet_treatments (avg ${avgPerPet} per pet)...`);
+	const chunkSize = 3000;
+	const batch: InsertPetTreatment[] = [];
+
+	for (const p of pets) {
+		const numberPerPet = faker.number.int({ min: 0, max: Math.max(0, avgPerPet * 2) });
+		for (let i = 0; i < numberPerPet; i++) {
+			const tr = faker.helpers.arrayElement(treatments);
+			const billed = faker.datatype.boolean({ probability: 0.6 });
+			let invoiceId: number | null = null;
+			if (billed && p.customerId != null) {
+				const invs = invoicesByCustomer.get(p.customerId) ?? [];
+				if (invs.length) invoiceId = faker.helpers.arrayElement(invs).invoiceId;
+			}
+
+			batch.push({
+				petId: p.petId,
+				treatmentId: tr.treatmentId,
+				invoiceId: invoiceId ?? null,
+				createdAt: faker.date.between({
+					from: new Date(p.createdAt.getTime() - 2_592_000_000), // last 30 days
+					to: new Date()
+				})
+			});
+
+			if (batch.length >= chunkSize) {
+				await db.insert(petTreatment).values(batch);
+				batch.length = 0;
+			}
+		}
+	}
+
+	if (batch.length) {
+		await db.insert(petTreatment).values(batch);
+	}
+}
+
 async function main() {
 	const args = parseArgs();
 	const DATABASE_URL = getDbUrl();
@@ -276,13 +413,24 @@ async function main() {
 		console.log('Wiping tables...');
 		await wipeConsentFilesFromStorage(db, supabaseAdmin);
 		await db.execute(
-			sql`TRUNCATE TABLE public.customer_consent, public.pet, public.customer, public.species RESTART IDENTITY CASCADE;`
+			sql`TRUNCATE TABLE 
+			public.pet_treatment, 
+			public.invoice, 
+			public.treatment, 
+			public.customer_consent, 
+			public.pet, 
+			public.customer, 
+			public.species 
+		RESTART IDENTITY CASCADE;`
 		);
 	}
 
 	const species = await SeedSpecies(db, args.speciesCount);
 	const customers = await SeedCustomers(db, args.customers);
-	await SeedPets(db, customers, species, args);
+	const pets = await SeedPets(db, customers, species, args);
+	const treatments = await SeedTreatments(db, args.treatmentsCount);
+	const invoicesByCustomer = await SeedInvoices(db, customers, args.avgInvoices);
+	await SeedPetTreatments(db, pets, treatments, invoicesByCustomer, args.avgPetTreatmentsPerPet);
 	await SeedConsentFiles(db, args, supabaseAdmin, customers);
 	console.log(`Done Seeding.`);
 	await pool.end();
