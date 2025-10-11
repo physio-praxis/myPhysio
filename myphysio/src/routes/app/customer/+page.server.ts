@@ -1,4 +1,4 @@
-import type { CustomerSearchItem, CustomerSearchResponse } from '$lib/types/customerSearch';
+import type { CustomerSearchItem, CustomerSearchResponse } from '$lib/types/customerTypes';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ fetch, url }) => {
