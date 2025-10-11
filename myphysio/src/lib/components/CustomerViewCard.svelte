@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CustomerSearchItem } from '$lib/types/customerSearch';
+	import type { CustomerSearchItem } from '$lib/types/customerTypes';
 	import { resolve } from '$app/paths';
 	import {
 		ShieldX,

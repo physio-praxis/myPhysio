@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db/db';
 import { customerSearchView } from '$lib/server/db/schema';
-import type { CustomerSearchResponse } from '$lib/types/customerSearch';
+import type { CustomerSearchResponse } from '$lib/types/customerTypes';
 import { decodeCursor, encodeCursor } from '$lib/utils/cursor';
 import { customerSearchQuerySchema } from '$lib/validation/app/customer/customerSearch.schema';
 import { error, type RequestHandler } from '@sveltejs/kit';

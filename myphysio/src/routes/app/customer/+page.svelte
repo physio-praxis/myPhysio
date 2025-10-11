@@ -6,7 +6,7 @@
 	import { UserPlus, Search, CircleQuestionMark, X } from '@lucide/svelte';
 	import { Popover } from '@skeletonlabs/skeleton-svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import type { CustomerSearchItem, CustomerSearchResponse } from '$lib/types/customerSearch';
+	import type { CustomerSearchItem, CustomerSearchResponse } from '$lib/types/customerTypes';
 
 	// ------------------ SSR Data --------------------------
 	interface Data {

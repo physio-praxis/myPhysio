@@ -154,7 +154,7 @@ export const petTreatment = pgTable(
 		petId: integer('pet_id')
 			.notNull()
 			.references(() => pet.petId, { onDelete: 'cascade', onUpdate: 'cascade' }),
-		treatmentId: integer('treatmentId')
+		treatmentId: integer('treatment_id')
 			.notNull()
 			.references(() => treatment.treatmentId, { onDelete: 'restrict', onUpdate: 'cascade' }),
 		invoiceId: integer('invoice_id').references(() => invoice.invoiceId, {
@@ -270,15 +270,17 @@ export const customerDetailsView = pgView('customer_details_view')
 				consentFilename: customerConsent.filename,
 				consentUploadedAt: customerConsent.uploadedAt,
 
-				pets: sql<Array<{
-					petId: number;
-					name: string | null;
-					speciesId: number | null;
-					species: string | null;
-					breed: string | null;
-					age: string | null;
-					medicalHistory: string | null;
-				}>>`
+				pets: sql<
+					Array<{
+						petId: number;
+						name: string | null;
+						speciesId: number | null;
+						species: string | null;
+						breed: string | null;
+						age: string | null;
+						medicalHistory: string | null;
+					}>
+				>`
 					COALESCE(
 						(
 							SELECT jsonb_agg(
@@ -300,17 +302,19 @@ export const customerDetailsView = pgView('customer_details_view')
 					)
 				`.as('pets'),
 
-				last5Treatments: sql<Array<{
-					petTreatmentId: number;
-					createdAt: string;
-					petId: number;
-					petName: string | null;
-					treatmentId: number;
-					treatmentName: string;
-					invoiceId: number | null;
-					invoiceAmount: string | null;
-					invoiceDate: string | null;
-				}>>`
+				last5Treatments: sql<
+					Array<{
+						petTreatmentId: number;
+						createdAt: string;
+						petId: number;
+						petName: string | null;
+						treatmentId: number;
+						treatmentName: string;
+						invoiceId: number | null;
+						invoiceAmount: string | null;
+						invoiceDate: string | null;
+					}>
+				>`
 					COALESCE(
 						(
 							SELECT jsonb_agg(
@@ -332,17 +336,17 @@ export const customerDetailsView = pgView('customer_details_view')
 									pt.pet_treatment_id AS pet_treatment_id,
 									pt.created_at AS created_at,
 									pt.pet_id AS pet_id,
-									p2.name AS pet_name,
+									p.name AS pet_name,
 									t.treatment_id AS treatment_id,
 									t.name AS treatment_name,
 									pt.invoice_id AS invoice_id,
 									i.amount::text AS invoice_amount,
 									i.date_issued AS invoice_date
 								FROM public.pet_treatment pt
-								JOIN public.pet p2 ON p2.pet_id = pt.pet_id
-								JOIN public.treatment t ON t.treatment_id = pt.pet_treatment_id
+								JOIN public.pet p ON p.pet_id = pt.pet_id
+								JOIN public.treatment t ON t.treatment_id = pt.treatment_id
 								LEFT JOIN public.invoice i ON i.invoice_id = pt.invoice_id
-								WHERE p2.customer_id = ${customer.customerId}
+								WHERE p.customer_id = ${customer.customerId}
 								ORDER BY pt.created_at DESC, pt.pet_treatment_id DESC
 								LIMIT 5
 							) AS t5
