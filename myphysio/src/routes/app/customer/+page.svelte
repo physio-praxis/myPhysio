@@ -7,6 +7,7 @@
 	import { Popover } from '@skeletonlabs/skeleton-svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import type { CustomerSearchItem, CustomerSearchResponse } from '$lib/types/customerTypes';
+	import { resolve } from '$app/paths';
 
 	// ------------------ SSR Data --------------------------
 	interface Data {
@@ -124,10 +125,10 @@
 				{/snippet}
 			</Popover>
 		</div>
-		<button type="button" class="btn preset-filled-primary-500">
+		<a href={resolve('/app/customer/add', {})} class="btn preset-filled-primary-500">
 			<UserPlus />
 			<span class="hidden md:block"> Kunde hinzufügen </span>
-		</button>
+		</a>
 	</header>
 	<form role="search" onsubmit={(event) => event.preventDefault()}>
 		<div class="input-group grid-cols-[auto_1fr_auto]">
