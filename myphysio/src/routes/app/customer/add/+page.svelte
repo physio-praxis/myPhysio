@@ -4,7 +4,8 @@
 	import { resolve } from '$app/paths';
 	import Breadcrumb from '$lib/components/Breadcrumb.svelte';
 	import type { FormPayload, FormType } from '$lib/types/formTypes';
-	import { IdCard, Mail, MapPinHouse, Phone, LoaderCircle, Save } from '@lucide/svelte';
+	import { IdCard, Mail, MapPinHouse, Phone, LoaderCircle, Save, FileUp, Paperclip, CircleX } from '@lucide/svelte';
+	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
 
 	const { data, form }: { data: FormPayload; form?: FormType } = $props();
 	const unifiedForm = $derived(form ?? data.form ?? {});
@@ -25,6 +26,7 @@
 	<form
 		method="POST"
 		action="?/create"
+		enctype="multipart/form-data"
 		class="flex flex-col items-center space-y-4"
 		use:enhance={() => {
 			isPending = true;
@@ -124,6 +126,23 @@
 		{#if errors.address}
 			<p id="err-address" class="w-full max-w-lg text-xs text-red-600">{errors.address}</p>
 		{/if}
+
+		<div class="w-full max-w-lg">
+			<FileUpload
+				name="consent"
+				accept="application/pdf,text/plain,.pdf,.txt"
+				maxFiles={1}
+				subtext="DSGVO-Datei anhängen."
+				classes="w-full"
+				maxFileSize={1024 * 1024 * 15}
+				label="DSGVO Datei Upload"
+				allowDrop
+				>
+				{#snippet iconInterface()}<FileUp class="size-8" />{/snippet}
+				{#snippet iconFile()}<Paperclip class="size-4" />{/snippet}
+				{#snippet iconFileRemove()}<CircleX class="size-4" />{/snippet}
+			</FileUpload>
+		</div>
 
 		<div class="flex w-full max-w-lg justify-end space-x-2">
 			<a href={resolve('/app/customer', {})} class="btn preset-filled-error-500">Abbrechen</a>
