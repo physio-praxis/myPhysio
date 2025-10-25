@@ -1,6 +1,7 @@
 import {
-	CustomerCreateSchema,
-	type CustomerCreateInput
+	ConsentFileSchema,
+	CustomerSchema,
+	type CustomerInput
 } from '$lib/validation/app/customer/customer.schema';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from '../$types';
@@ -18,7 +19,7 @@ export const actions: Actions = {
 		const consent = formData.get('consent');
 		const consentFile = consent instanceof File && consent.size > 0 ? consent : null;
 
-		const parsed = CustomerCreateSchema.safeParse(raw);
+		const parsed = CustomerSchema.safeParse(raw);
 
 		if (!parsed.success) {
 			const errors: Record<string, string> = {};
@@ -30,21 +31,18 @@ export const actions: Actions = {
 		}
 
 		if (consentFile) {
-			const okType = 
-				consentFile.type === 'application/pdf' || consentFile.type === 'text/plain';
-				const okSize = consentFile.size <= 1024 * 1024 * 15; // 15 MB
-			if (!okType || !okSize) {
+			const parsedConsentFile = ConsentFileSchema.safeParse(consentFile);
+			if (!parsedConsentFile.success) {
 				const errors: Record<string, string> = {};
-				if (!okType) {
-					errors['consent'] = 'Nur PDF- und Textdateien sind erlaubt.';
-				} else if (!okSize) {
-					errors['consent'] = 'Die Datei darf maximal 15 MB groß sein.';
+				for (const issue of parsedConsentFile.error.issues) {
+					const issueKey = String(issue.path[0] ?? '_');
+					if (!errors[issueKey]) errors[issueKey] = issue.message;
 				}
 				return fail(400, { values: raw, errors });
 			} 
 		}
 
-		const input: CustomerCreateInput = parsed.data;
+		const input: CustomerInput = parsed.data;
 		let created;
 		try {
 			created = await createCustomer(input);
