@@ -14,9 +14,9 @@ const address = z.string().trim().max(1000, 'Zu lang');
 
 export const CustomerSchema = z.object({
 	name: name,
-	email: email,
-	phone: phone,
-	address: address
+	email: email.optional().or(z.literal('')),
+	phone: phone.optional().or(z.literal('')),
+	address: address.optional().or(z.literal(''))
 });
 
 export type CustomerInput = z.infer<typeof CustomerSchema>;
@@ -24,9 +24,9 @@ export type CustomerInput = z.infer<typeof CustomerSchema>;
 export const customerIdSchema = z.uuid('Ungültige Kunden-ID');
 export const ConsentFileSchema = z
 	.instanceof(File)
-	.refine(file => file.size > 0, 'Datei ist leer')
-	.refine(file => file.size <= 1024 * 1024 * 15, 'Die Datei darf maximal 15 MB groß sein.')
+	.refine((file) => file.size > 0, 'Datei ist leer')
+	.refine((file) => file.size <= 1024 * 1024 * 15, 'Die Datei darf maximal 15 MB groß sein.')
 	.refine(
-		file => file.type === 'application/pdf' || file.type === 'text/plain',
+		(file) => file.type === 'application/pdf' || file.type === 'text/plain',
 		'Nur PDF- und Textdateien sind erlaubt.'
 	);

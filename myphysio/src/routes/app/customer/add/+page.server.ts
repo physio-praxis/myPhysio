@@ -39,7 +39,7 @@ export const actions: Actions = {
 					if (!errors[issueKey]) errors[issueKey] = issue.message;
 				}
 				return fail(400, { values: raw, errors });
-			} 
+			}
 		}
 
 		const input: CustomerInput = parsed.data;

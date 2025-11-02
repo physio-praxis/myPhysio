@@ -71,7 +71,8 @@
 								{#if href}
 									<a
 										href={resolve(href, { customerId: customer.customerId.toString() })}
-										class="anchor" data-sveltekit-reload>{detailValue}</a
+										class="anchor"
+										data-sveltekit-reload>{detailValue}</a
 									>
 								{:else}
 									{detailValue}

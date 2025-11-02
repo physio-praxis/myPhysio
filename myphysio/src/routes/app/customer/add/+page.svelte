@@ -4,7 +4,17 @@
 	import { resolve } from '$app/paths';
 	import Breadcrumb from '$lib/components/Breadcrumb.svelte';
 	import type { FormPayload, FormType } from '$lib/types/formTypes';
-	import { IdCard, Mail, MapPinHouse, Phone, LoaderCircle, Save, FileUp, Paperclip, CircleX } from '@lucide/svelte';
+	import {
+		IdCard,
+		Mail,
+		MapPinHouse,
+		Phone,
+		LoaderCircle,
+		Save,
+		FileUp,
+		Paperclip,
+		CircleX
+	} from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
 
 	const { data, form }: { data: FormPayload; form?: FormType } = $props();
@@ -137,7 +147,7 @@
 				maxFileSize={1024 * 1024 * 15}
 				label="DSGVO Datei Upload"
 				allowDrop
-				>
+			>
 				{#snippet iconInterface()}<FileUp class="size-8" />{/snippet}
 				{#snippet iconFile()}<Paperclip class="size-4" />{/snippet}
 				{#snippet iconFileRemove()}<CircleX class="size-4" />{/snippet}

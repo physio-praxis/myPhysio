@@ -1,57 +1,115 @@
-import { uuid } from "zod";
-import type { PageServerLoad } from "../$types";
-import { customer, customerConsent } from "$lib/server/db/schema";
-import { db } from "$lib/server/db/db";
-import { eq, desc } from "drizzle-orm";
-import { error, fail, type Actions } from "@sveltejs/kit";
-import { CustomerSchema, type CustomerInput } from "$lib/validation/app/customer/customer.schema";
+import type { PageServerLoad } from '../$types';
+import { customer, customerConsent } from '$lib/server/db/schema';
+import { db } from '$lib/server/db/db';
+import { eq, desc, and } from 'drizzle-orm';
+import { error, fail, redirect, type Actions } from '@sveltejs/kit';
+import { ConsentFileSchema, CustomerSchema } from '$lib/validation/app/customer/customer.schema';
+import { saveConsentFile, updateCustomer } from '$lib/server/db/repos/customerRepo';
+import { toStringMap } from '$lib/utils/formUtils';
 
 export const load: PageServerLoad = async ({ params }) => {
-    const id = uuid().parse(params.customerId);
+	const customerId = parseInt(params.customerId);
 
-    const [ cus ] = await db
-        .select()
-        .from(customer)
-        .where(eq(customer.customerId, parseInt(id)))
-        .limit(1);
+	if (isNaN(customerId)) {
+		throw error(400, 'Ungültige Kunden-ID');
+	}
 
-    if (!cus) {
-        throw error(404, 'Kunde nicht gefunden');
-    }
+	const [cus] = await db.select().from(customer).where(eq(customer.customerId, customerId));
 
-    const latestConsent = await db
-        .select()
-        .from(customerConsent)
-        .where(eq(customerConsent.customerId, cus.customerId))
-        .orderBy(desc(customerConsent.uploadedAt))
-        .limit(1);
+	if (!cus) {
+		throw error(404, 'Kunde nicht gefunden');
+	}
 
-    return { customer: cus, consent: latestConsent[0] ?? null };
+	const [latestConsent] = await db
+		.select()
+		.from(customerConsent)
+		.where(and(eq(customerConsent.customerId, customerId), eq(customerConsent.isLatest, true)))
+		.orderBy(desc(customerConsent.uploadedAt))
+		.limit(1);
+
+	const customerWithConsent = {
+		...cus,
+		hasConsent: !!latestConsent,
+		consentFilename: latestConsent?.filename || null,
+		consentUploadedAt: latestConsent?.uploadedAt.toISOString() || null
+	};
+
+	const breadCrumb = [
+		{ label: 'Kunden', href: '/app/customer' },
+		{ label: cus.name || 'Unbekannt', href: `/app/customer/${customerId}` },
+		{ label: 'Bearbeiten', href: `/app/customer/${customerId}/edit` }
+	];
+
+	return {
+		customer: customerWithConsent,
+		breadCrumb,
+		form: { values: {} as Record<string, string>, errors: {} as Record<string, string> }
+	};
 };
 
-type FieldErrors = Partial<Record<keyof CustomerInput | 'consent', string[]>>;
-interface ActionData {
-  ok: false;
-  errors: FieldErrors;
-  values: Partial<CustomerInput>;
-}
-
 export const actions: Actions = {
-    default: async ({ request, params }) => {
-        const id = uuid().parse(params.customerId);
-        const formData = await request.formData();
-        const values = {
-            name: (formData.get('name') ?? '') as string,
-            email: (formData.get('email') ?? '') as string,
-            phone: (formData.get('phone') ?? '') as string,
-            address: (formData.get('address') ?? '') as string
-        };
+	default: async ({ request, params }) => {
+		const customerId = parseInt(params.customerId);
 
-        const parsed = CustomerSchema.safeParse(values);
-        if (!parsed.success) {
-            const errors = parsed.error.flatten((issue) => issue.message).fieldErrors as FieldErrors;
-            const data: ActionData = { ok: false, errors, values };
-            return fail(400, data);
-        }
-    }
-}
+		if (isNaN(customerId)) {
+			return fail(400, {
+				values: {},
+				errors: { _global: 'Ungültige Kunden-ID' } as Record<string, string>
+			});
+		}
+
+		const formData = await request.formData();
+		const raw = toStringMap(formData);
+		const consentFile = formData.get('consentFile');
+		const consentFileObj = consentFile instanceof File && consentFile.size > 0 ? consentFile : null;
+
+		// Validate customer data
+		const parsed = CustomerSchema.safeParse(raw);
+		if (!parsed.success) {
+			const errors: Record<string, string> = {};
+			for (const issue of parsed.error.issues) {
+				const issueKey = String(issue.path[0] ?? '_');
+				if (!errors[issueKey]) errors[issueKey] = issue.message;
+			}
+			return fail(400, { values: raw, errors });
+		}
+
+		// Validate consent file if provided
+		if (consentFileObj) {
+			const parsedConsentFile = ConsentFileSchema.safeParse(consentFileObj);
+			if (!parsedConsentFile.success) {
+				const errors: Record<string, string> = {};
+				for (const issue of parsedConsentFile.error.issues) {
+					const issueKey = String(issue.path[0] ?? '_');
+					if (!errors[issueKey]) errors[issueKey] = issue.message;
+				}
+				return fail(400, { values: raw, errors });
+			}
+		}
+
+		try {
+			// Update customer
+			await updateCustomer({
+				customerId,
+				name: parsed.data.name,
+				email: parsed.data.email || null,
+				phoneNumber: parsed.data.phone || null,
+				address: parsed.data.address || null
+			});
+
+			// Upload new consent file if provided
+			if (consentFileObj) {
+				await saveConsentFile({ customerId, file: consentFileObj });
+			}
+		} catch {
+			return fail(500, {
+				values: raw,
+				errors: {
+					_global: 'Fehler beim Aktualisieren des Kunden'
+				} as Record<string, string>
+			});
+		}
+
+		throw redirect(303, `/app/customer/${customerId}`);
+	}
+};
