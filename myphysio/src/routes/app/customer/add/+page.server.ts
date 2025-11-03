@@ -45,7 +45,12 @@ export const actions: Actions = {
 		const input: CustomerInput = parsed.data;
 		let created;
 		try {
-			created = await createCustomer(input);
+			created = await createCustomer({
+				name: input.name,
+				email: input.email || null,
+				phoneNumber: input.phone || null,
+				address: input.address || null
+			});
 			if (consentFile) {
 				await saveConsentFile({ customerId: created.customerId, file: consentFile });
 			}

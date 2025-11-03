@@ -1,9 +1,9 @@
-import { customer, customerConsent, type InsertCustomer } from '../schema';
+import { customer, customerConsent, invoice, type InsertCustomer } from '../schema';
 import { db } from '../db';
 import { createHash, randomUUID } from 'node:crypto';
 import { supabaseAdmin } from '$lib/server/supabase';
 import type { UpdateCustomerInput } from '$lib/types/customerTypes';
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 
 type Input = Omit<InsertCustomer, 'customerId' | 'createdAt'>;
 
@@ -38,6 +38,31 @@ export async function updateCustomer(input: UpdateCustomerInput) {
 	}
 
 	return row;
+}
+
+export async function deleteCustomer(customerId: number) {
+	const [invoiceCount] = await db
+		.select({ count: count() })
+		.from(invoice)
+		.where(eq(invoice.customerId, customerId));
+
+	if (invoiceCount.count > 0) {
+		throw new Error('Kunde kann nicht gelöscht werden, da Rechnungen existieren');
+	}
+
+	const consentFiles = await db
+		.select({
+			storageBucket: customerConsent.storageBucket,
+			storageKey: customerConsent.storageKey
+		})
+		.from(customerConsent)
+		.where(eq(customerConsent.customerId, customerId));
+
+	await db.delete(customer).where(eq(customer.customerId, customerId));
+
+	for (const file of consentFiles) {
+		await supabaseAdmin.storage.from(file.storageBucket).remove([file.storageKey]);
+	}
 }
 
 async function uploadToStorage(
