@@ -163,21 +163,25 @@
 		<div class="w-full max-w-lg">
 			<FileUpload
 				name="consentFile"
-				accept="application/pdf,text/plain,.pdf,.txt"
 				maxFiles={1}
 				subtext={customer.hasConsent
 					? 'Neue Datei hochladen, um die aktuelle zu ersetzen (optional).'
 					: 'DSGVO-Datei anhängen (optional).'}
 				classes="w-full"
-				maxFileSize={1024 * 1024 * 15}
 				label="DSGVO Datei Upload"
 				allowDrop
+				invalid={Boolean(errors['consentFile'])}
 			>
 				{#snippet iconInterface()}<FileUp class="size-8" />{/snippet}
 				{#snippet iconFile()}<Paperclip class="size-4" />{/snippet}
 				{#snippet iconFileRemove()}<CircleX class="size-4" />{/snippet}
 			</FileUpload>
 		</div>
+		{#if errors['consentFile']}
+			<p id="err-consentFile" class="w-full max-w-lg text-xs text-red-600">
+				{errors['consentFile']}
+			</p>
+		{/if}
 
 		<!-- Action Buttons -->
 		<div class="flex w-full max-w-lg justify-end space-x-2">

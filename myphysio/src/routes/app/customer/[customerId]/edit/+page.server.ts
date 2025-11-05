@@ -80,8 +80,8 @@ export const actions: Actions = {
 			if (!parsedConsentFile.success) {
 				const errors: Record<string, string> = {};
 				for (const issue of parsedConsentFile.error.issues) {
-					const issueKey = String(issue.path[0] ?? '_');
-					if (!errors[issueKey]) errors[issueKey] = issue.message;
+					errors['consentFile'] = issue.message;
+					break;
 				}
 				return fail(400, { values: raw, errors });
 			}

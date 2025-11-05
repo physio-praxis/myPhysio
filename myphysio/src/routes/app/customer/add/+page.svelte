@@ -140,19 +140,21 @@
 		<div class="w-full max-w-lg">
 			<FileUpload
 				name="consent"
-				accept="application/pdf,text/plain,.pdf,.txt"
 				maxFiles={1}
 				subtext="DSGVO-Datei anhängen."
 				classes="w-full"
-				maxFileSize={1024 * 1024 * 15}
 				label="DSGVO Datei Upload"
 				allowDrop
+				invalid={Boolean(errors.consent)}
 			>
 				{#snippet iconInterface()}<FileUp class="size-8" />{/snippet}
 				{#snippet iconFile()}<Paperclip class="size-4" />{/snippet}
 				{#snippet iconFileRemove()}<CircleX class="size-4" />{/snippet}
 			</FileUpload>
 		</div>
+		{#if errors.consent}
+			<p id="err-consent" class="w-full max-w-lg text-xs text-red-600">{errors.consent}</p>
+		{/if}
 
 		<div class="flex w-full max-w-lg justify-end space-x-2">
 			<a href={resolve('/app/customer', {})} class="btn preset-filled-error-500">Abbrechen</a>

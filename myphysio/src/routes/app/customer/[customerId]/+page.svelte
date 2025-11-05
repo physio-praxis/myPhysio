@@ -29,7 +29,7 @@
 			detailValue: customer.hasConsent
 				? customer.consentFilename
 				: 'Keine unterzeichnete DSGVO-Einwilligung',
-			href: `/app/customer/[customerId]/consent`
+			href: customer.hasConsent ? `/app/customer/[customerId]/consent` : null
 		}
 	];
 	let deleteModalOpenState = $state(false);
