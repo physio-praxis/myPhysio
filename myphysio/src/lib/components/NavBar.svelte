@@ -2,7 +2,6 @@
 	import { Navigation } from '@skeletonlabs/skeleton-svelte';
 	import { Calendar, User, ReceiptEuro, Stethoscope, Settings, LogOut } from '@lucide/svelte';
 	import { page } from '$app/state';
-	import { isMobile } from '$lib/stores/breakpoint';
 
 	let navBarValue = $state('Kalendar');
 
@@ -16,7 +15,8 @@
 	const navFooterInfo = [{ label: 'Abmelden', href: '/auth/logout', icon: LogOut }];
 </script>
 
-{#if $isMobile}
+<!-- Mobile Navigation (hidden on md and above) -->
+<div class="block md:hidden">
 	<Navigation.Bar value={navBarValue} onValueChange={(newValue) => (navBarValue = newValue)}>
 		{#each navInfo as { label, href, icon } (label)}
 			{@const Icon = icon}
@@ -31,7 +31,10 @@
 			</Navigation.Tile>
 		{/each}
 	</Navigation.Bar>
-{:else}
+</div>
+
+<!-- Desktop Navigation (hidden below md) -->
+<div class="hidden h-full md:block">
 	<Navigation.Rail expanded={true} widthExpanded="w-48" tilesJustify="start" footerClasses="hr">
 		{#snippet tiles()}
 			{#each navInfo as { label, href, icon, classes } (label)}
@@ -61,4 +64,4 @@
 			{/each}
 		{/snippet}
 	</Navigation.Rail>
-{/if}
+</div>
