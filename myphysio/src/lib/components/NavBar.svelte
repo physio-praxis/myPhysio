@@ -49,10 +49,6 @@
 			<CircleEllipsis />
 		</Navigation.Tile>
 	</Navigation.Bar>
-</div>
-
-<!-- Desktop Navigation (hidden below md) -->
-<div class="hidden h-full md:block">
 
 	<!-- Drawer for secondary items -->
 	<Modal
@@ -101,7 +97,10 @@
 			</nav>
 		{/snippet}
 	</Modal>
-{:else}
+</div>
+
+<!-- Desktop Navigation (hidden below md) -->
+<div class="hidden h-full md:block">
 	<Navigation.Rail expanded={true} widthExpanded="w-48" tilesJustify="start" footerClasses="hr">
 		{#snippet tiles()}
 			{#each navInfo as { label, href, icon, classes } (label)}
