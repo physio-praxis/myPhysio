@@ -105,41 +105,45 @@
 		</div>
 
 		<div>
-			<h4 class="h4">Letzte 5 Behandlungen</h4>
-			<div class="table-wrap rounded border border-surface-500">
-				<table class="table">
-					<thead class="bg-surface-100-900">
-						<tr>
-							<th>Datum</th>
-							<th>Typ</th>
-							<th>Notizen</th>
-							<th>Aktion</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#if selectedPetTreatments !== undefined}
-							{#each selectedPetTreatments as treatment (treatment.petTreatmentId)}
-								<tr>
-									<td>{formatDateDMY(treatment.createdAt)}</td>
-									<td>{treatment.treatmentName}</td>
-									<td>TBD</td>
-									<td>
-										<a
-											class="btn preset-filled-primary-500"
-											href={resolve(`/app/treatment/[treatmentId]`, {
-												treatmentId: String(treatment.treatmentId)
-											})}
-										>
-											<Eye />
-											<span class="hidden md:block">Anzeigen</span>
-										</a>
-									</td>
-								</tr>
-							{/each}
-						{/if}
-					</tbody>
-				</table>
-			</div>
+			<h4 class="h4 mb-2">Letzte 5 Behandlungen</h4>
+      {#if selectedPetTreatments !== undefined && selectedPetTreatments.length > 0}
+        <div class="table-wrap rounded border border-surface-500">
+          <table class="table">
+            <thead class="bg-surface-100-900">
+              <tr>
+                <th>Datum</th>
+                <th>Typ</th>
+                <th>Notizen</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#if selectedPetTreatments !== undefined}
+                {#each selectedPetTreatments as treatment (treatment.petTreatmentId)}
+                  <tr>
+                    <td>{formatDateDMY(treatment.createdAt)}</td>
+                    <td>{treatment.treatmentName}</td>
+                    <td>TBD</td>
+                    <td>
+                      <a
+                        class="btn preset-filled-primary-500"
+                        href={resolve(`/app/treatment/[treatmentId]`, {
+                          treatmentId: String(treatment.treatmentId)
+                        })}
+                      >
+                        <Eye />
+                        <span class="hidden md:block">Anzeigen</span>
+                      </a>
+                    </td>
+                  </tr>
+                {/each}
+              {/if}
+            </tbody>
+          </table>
+        </div>
+      {:else}
+        <div class="text-center">--- Keine Behandlungen verfügbar ---</div>
+      {/if}
 		</div>
 	</div>
 {/if}
