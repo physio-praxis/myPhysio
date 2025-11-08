@@ -51,3 +51,11 @@ export type CustomerDetails = {
 	pets?: CustomerPet[];
 	last5Treatments?: CustomerPetTreatment[];
 };
+
+export type UpdateCustomerInput = {
+	customerId: number;
+	name: string;
+	email?: string | null;
+	phoneNumber?: string | null;
+	address?: string | null;
+};

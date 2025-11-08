@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db/db.js';
+import { deleteCustomer } from '$lib/server/db/repos/customerRepo';
 import { customerDetailsView } from '$lib/server/db/schema.js';
-import { error } from '@sveltejs/kit';
+import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 
 export async function load({ params }) {
@@ -24,3 +25,26 @@ export async function load({ params }) {
 		]
 	};
 }
+
+export const actions: Actions = {
+	delete: async ({ params }) => {
+		const customerId = Number(params.customerId);
+
+		if (isNaN(customerId)) {
+			return fail(400, {
+				errors: { _global: 'Ungültige Kunden-ID' }
+			});
+		}
+
+		try {
+			await deleteCustomer(customerId);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Fehler beim Löschen des Kunden';
+			return fail(500, {
+				errors: { _global: message }
+			});
+		}
+
+		throw redirect(303, '/app/customer');
+	}
+};

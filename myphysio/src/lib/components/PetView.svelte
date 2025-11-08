@@ -14,7 +14,7 @@
 		customerId: number;
 	} = $props();
 	let petsExists = pets?.length !== undefined && pets.length > 0;
-	let firstPetId = pets !== undefined ? pets[0].petId.toString() : '';
+	let firstPetId = pets !== undefined && pets.length > 0 ? pets[0].petId.toString() : '';
 	let selectedPetId = $state(firstPetId);
 	const selectedPet = $derived(pets?.find((p) => String(p.petId) === selectedPetId));
 	let selectedPetDetails = $derived([

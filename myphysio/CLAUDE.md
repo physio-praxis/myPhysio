@@ -1,0 +1,199 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+MyPhysio is a physiotherapy practice management application for veterinary practices. Built with SvelteKit 2, it manages customers (pet owners), their pets, treatments, and invoices. The app uses PostgreSQL via Drizzle ORM and Supabase for authentication and file storage.
+
+## Working with Claude Code
+
+**Default Mode: Readonly Advisor**
+
+Claude should act as a readonly advisor for this project by default:
+
+- **Suggest** changes, improvements, and implementation plans
+- **Review** and validate implementations
+- **Guide** through step-by-step processes
+- **NEVER** write, edit, or modify files directly unless explicitly requested
+
+**Exception**: Claude may perform write operations (Edit, Write, Bash commands) ONLY when the developer explicitly requests it (e.g., "please implement this", "add this for me", "write this code").
+
+## Development Commands
+
+### Running the Application
+
+```bash
+npm run dev              # Start dev server
+npm run dev -- --open    # Start dev server and open browser
+npm run build            # Production build
+npm run preview          # Preview production build
+```
+
+### Type Checking & Linting
+
+```bash
+npm run check            # Type check with svelte-check (fails on warnings)
+npm run check:watch      # Type check in watch mode
+npm run lint             # Run prettier check + eslint
+npm run format           # Format code with prettier
+```
+
+### Testing
+
+```bash
+npm run test             # Run all tests once
+npm run test:unit        # Run tests in watch mode
+npm run test:ci          # Run tests with coverage for CI
+
+# Run specific test file
+npx vitest run path/to/file.test.ts
+
+# Run tests for a specific project (client or server)
+npx vitest run --project=server
+npx vitest run --project=client
+```
+
+The test suite uses Vitest with two projects:
+
+- **server**: Node environment tests (src/lib/server, repos, utilities) using PGlite for in-memory PostgreSQL
+- **client**: Browser tests (\*.svelte.test/spec files) using Playwright with Chromium
+
+### Database Commands
+
+```bash
+npm run db:push          # Push schema changes to database (dev)
+npm run db:generate      # Generate migration files
+npm run db:migrate       # Run migrations
+npm run db:studio        # Open Drizzle Studio GUI
+npm run db:seed          # Seed database with test data
+npm run db:seed:wipe     # Wipe and reseed database
+```
+
+## Architecture
+
+### Authentication & Session Management
+
+The app uses a custom session system built on top of Supabase Auth:
+
+1. **Supabase handles OAuth/password authentication** → returns user ID
+2. **Custom session system** (`src/lib/server/session.ts`):
+   - Generates session tokens (32-byte random, base64url encoded)
+   - Stores hashed tokens (SHA-256) in `user_session` table
+   - Sessions expire after 7 days, auto-refresh if <1 day remains
+   - Cookie: `myphysio_app_session` (httpOnly, sameSite: lax)
+
+3. **Global auth check** (`src/hooks.server.ts`):
+   - Every request reads session from cookie
+   - Populates `event.locals.session` and `event.locals.user`
+   - Redirects unauthenticated users to `/auth/login` (except `/auth/*` routes)
+
+### Database Layer
+
+- **ORM**: Drizzle ORM with PostgreSQL
+- **Connection**: Production uses `pg` Pool, tests use PGlite (in-memory)
+- **Schema**: Single source of truth in `src/lib/server/db/schema.ts`
+
+**Key Tables**:
+
+- `auth_user`, `user_session` - Authentication
+- `customer` - Pet owners with contact info
+- `customer_consent` - GDPR consent files stored in Supabase Storage
+- `pet` - Animals belonging to customers
+- `species` - Reference table for animal types
+- `treatment` - Treatment catalog
+- `pet_treatment` - Links pets to treatments and invoices
+- `invoice` - Billing records
+
+**Views**:
+
+- `customer_search_view` - Optimized for search with pet info aggregated
+- `customer_details_view` - Full customer details with pets array and last 5 treatments (JSON)
+
+**Repositories**: Database queries are organized in `src/lib/server/db/repos/` (e.g., `customerRepo.ts`)
+
+### Frontend Structure
+
+- **Framework**: Svelte 5 with SvelteKit 2 (file-based routing)
+- **Styling**: Tailwind CSS 4 + Skeleton UI components
+- **Icons**: Lucide Svelte
+- **Forms**: Zod validation schemas in `src/lib/validation/`
+
+**Key Routes**:
+
+- `/auth/login` - Public login page
+- `/app/*` - Protected app routes (requires session)
+  - `/app/customer` - Customer list/search
+  - `/app/customer/add` - Add new customer
+  - `/app/customer/[customerId]` - Customer details
+  - `/app/customer/[customerId]/edit` - Edit customer
+  - `/app/customer/[customerId]/consent` - Upload GDPR consent
+
+**State Management**:
+
+- Svelte 5 runes (`$state`, `$derived`, `$effect`)
+- Stores in `src/lib/stores/` (e.g., `breakpoint.ts` for responsive design)
+
+### File Organization
+
+```
+src/
+├── lib/
+│   ├── components/          # Reusable Svelte components
+│   ├── server/
+│   │   ├── db/
+│   │   │   ├── schema.ts    # Drizzle schema (tables, views, relations)
+│   │   │   ├── db.ts        # Database connection
+│   │   │   └── repos/       # Repository pattern for queries
+│   │   ├── session.ts       # Session management
+│   │   └── supabase.ts      # Supabase clients (admin, anon)
+│   ├── stores/              # Svelte stores
+│   ├── testing/             # Test utilities (testDb, setupDb)
+│   ├── types/               # TypeScript types
+│   ├── utils/               # Shared utilities
+│   └── validation/          # Zod schemas
+├── routes/                  # SvelteKit file-based routing
+└── hooks.server.ts          # Global request handler
+```
+
+## Important Patterns
+
+### Validation
+
+All forms use Zod schemas defined in `src/lib/validation/`. Server actions validate input with these schemas before database operations.
+
+### File Uploads
+
+Customer consent files are uploaded to Supabase Storage using `supabaseAdmin` client. Metadata (SHA-256 hash, size, mime type) is stored in `customer_consent` table. The `isLatest` flag marks the current active consent.
+
+### Testing Database
+
+Tests use PGlite (in-memory PostgreSQL) initialized in `src/lib/testing/setupDb.ts`. Each test file can call `makeTestDb()` to get a fresh database instance with the full schema applied via Drizzle migrations.
+
+### Error Handling
+
+SvelteKit form actions return `{ success: boolean, error?: string }`. Failed actions set form-level errors displayed in the UI.
+
+## Environment Variables
+
+Required (see `.env.example`):
+
+- `PUBLIC_SUPABASE_URL` - Supabase project URL
+- `PUBLIC_SUPABASE_ANON_KEY` - Public anon key
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (server-side only)
+- `DATABASE_URL` - PostgreSQL connection string
+
+## Key Dependencies
+
+- **SvelteKit 2** + **Svelte 5** - Framework
+- **Drizzle ORM** - Type-safe SQL with PostgreSQL
+- **Supabase** - Auth + Storage (not using Supabase DB, just services)
+- **Tailwind CSS 4** - Styling
+- **Skeleton UI** - Component library
+- **Zod** - Schema validation
+- **Vitest** - Testing framework
+- **PGlite** - In-memory PostgreSQL for tests
+- we define types always in the folder src/lib/types and not directly where it is used
+- this project all messages (errors or text the user see) will be in german
+- don't change code yourself, just guide me through it please
+- I am not allowed to use the type any anywhere
