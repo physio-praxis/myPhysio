@@ -25,7 +25,7 @@
 		data-sveltekit-prefetch
 	>
 		<header class="mb-4 flex justify-between">
-			<h4 class="h4 truncate">{customerSearchItem.customer.name || '---'}</h4>
+			<h4 class="truncate h4">{customerSearchItem.customer.name || '---'}</h4>
 			<div class="flex space-x-2">
 				{#if customerSearchItem.badges.hasConcent}
 					<span class="text-success-500">
