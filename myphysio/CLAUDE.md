@@ -134,6 +134,19 @@ The app uses a custom session system built on top of Supabase Auth:
 - Svelte 5 runes (`$state`, `$derived`, `$effect`)
 - Stores in `src/lib/stores/` (e.g., `breakpoint.ts` for responsive design)
 
+**Navigation Pattern**:
+
+The app uses responsive navigation (`src/lib/components/NavBar.svelte`):
+
+- **Desktop**: `Navigation.Rail` - Vertical sidebar with all menu items
+- **Mobile**: `Navigation.Bar` - Bottom bar with icon-only tiles
+  - Primary items: First 4 items from navigation array shown directly in bottom bar
+  - Secondary items: Remaining items accessible via "Mehr" (More) button
+  - Overflow menu: Uses Skeleton UI's `Modal` component configured as bottom drawer
+  - Pattern scales infinitely - new items automatically appear in "Mehr" menu
+
+**Important**: Skeleton UI v3 doesn't have a separate `Drawer` component. Use `Modal` with bottom positioning (`positionerJustify="justify-end"`, `positionerAlign="items-end"`) and slide-up transitions (`transitionsPositionerIn/Out={{ y: value }}`).
+
 ### File Organization
 
 ```
