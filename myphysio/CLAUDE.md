@@ -128,11 +128,12 @@ The app uses a custom session system built on top of Supabase Auth:
   - `/app/customer/[customerId]` - Customer details
   - `/app/customer/[customerId]/edit` - Edit customer
   - `/app/customer/[customerId]/consent` - Upload GDPR consent
+  - `/app/settings` - Application settings and version display
 
 **State Management**:
 
 - Svelte 5 runes (`$state`, `$derived`, `$effect`)
-- No global stores currently - responsive design handled via Tailwind CSS classes
+- Responsive design handled via Tailwind CSS classes (no JavaScript breakpoint detection)
 
 **Navigation Pattern**:
 
@@ -215,6 +216,27 @@ Tests use PGlite (in-memory PostgreSQL) initialized in `src/lib/testing/setupDb.
 ### Error Handling
 
 SvelteKit form actions return `{ success: boolean, error?: string }`. Failed actions set form-level errors displayed in the UI.
+
+### Loading Application Metadata
+
+Application version and other build-time metadata from `package.json` can be loaded server-side using Node.js file system APIs:
+
+```typescript
+// src/routes/app/settings/+page.server.ts
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async () => {
+	const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8'));
+
+	return {
+		version: packageJson.version
+	};
+};
+```
+
+The loaded data is automatically typed and available in the corresponding `+page.svelte` component via the `data` prop. This pattern is used in the settings page to display the current application version.
 
 ## Environment Variables
 
