@@ -10,7 +10,6 @@
 		CircleEllipsis
 	} from '@lucide/svelte';
 	import { page } from '$app/state';
-	import { isMobile } from '$lib/stores/breakpoint';
 
 	let navBarValue = $state('Kalendar');
 	let showMoreDrawer = $state(false);
@@ -31,7 +30,8 @@
 	}
 </script>
 
-{#if $isMobile}
+<!-- Mobile Navigation (hidden on md and above) -->
+<div class="block md:hidden">
 	<Navigation.Bar value={navBarValue} onValueChange={(newValue) => (navBarValue = newValue)}>
 		{#each mobilePrimaryNavItems as { label, href, icon } (label)}
 			{@const Icon = icon}
@@ -97,7 +97,10 @@
 			</nav>
 		{/snippet}
 	</Modal>
-{:else}
+</div>
+
+<!-- Desktop Navigation (hidden below md) -->
+<div class="hidden h-full md:block">
 	<Navigation.Rail expanded={true} widthExpanded="w-48" tilesJustify="start" footerClasses="hr">
 		{#snippet tiles()}
 			{#each navInfo as { label, href, icon, classes } (label)}
@@ -127,4 +130,4 @@
 			{/each}
 		{/snippet}
 	</Navigation.Rail>
-{/if}
+</div>

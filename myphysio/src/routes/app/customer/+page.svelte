@@ -2,7 +2,6 @@
 	import CustomerViewCard from '$lib/components/CustomerViewCard.svelte';
 	import DebounceInput from '$lib/components/DebounceInput.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
-	import { isMobile } from '$lib/stores/breakpoint';
 	import { UserPlus, Search, CircleQuestionMark, X } from '@lucide/svelte';
 	import { Popover } from '@skeletonlabs/skeleton-svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
@@ -86,7 +85,7 @@
 
 	// ------------------ Search Input ----------------------
 	const longSearchHint = 'Suche nach Name, Kontakinformationen oder Haustiere (Name/Rasse/Art)…';
-	let searchInputPlaceholder = $derived($isMobile ? 'Suche...' : longSearchHint);
+	const shortSearchHint = 'Suche...';
 	let searchHelpPopoverOpen = $state(false);
 	function closeSearchHelpPopover() {
 		searchHelpPopoverOpen = false;
@@ -135,12 +134,27 @@
 			<div class="ig-cell preset-tonal">
 				<Search />
 			</div>
+			<!-- Mobile search input -->
 			<DebounceInput
-				id="customer-search"
-				className="ig-input"
+				id="customer-search-mobile"
+				className="ig-input md:hidden"
 				ariaLabel="Kundensuche"
 				type="search"
-				placeholder={searchInputPlaceholder}
+				placeholder={shortSearchHint}
+				value={query}
+				onValueChange={(value) => (query = value)}
+				onDebounced={() => runSearch(true)}
+				delay={300}
+				minLength={0}
+				inputProps={{ spellcheck: false, inputmode: 'search' }}
+			/>
+			<!-- Desktop search input -->
+			<DebounceInput
+				id="customer-search-desktop"
+				className="ig-input hidden md:block"
+				ariaLabel="Kundensuche"
+				type="search"
+				placeholder={longSearchHint}
 				value={query}
 				onValueChange={(value) => (query = value)}
 				onDebounced={() => runSearch(true)}
