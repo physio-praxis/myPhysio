@@ -10,6 +10,7 @@
 		CircleEllipsis
 	} from '@lucide/svelte';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 
 	let navBarValue = $state('Kalendar');
 	let showMoreDrawer = $state(false);
@@ -71,7 +72,7 @@
 				{#each mobileSecondaryNavItems as { label, href, icon } (label)}
 					{@const Icon = icon}
 					<a
-						{href}
+						href={resolve(href, {})}
 						class="flex items-center gap-3 rounded-lg p-3 hover:bg-surface-200-800"
 						class:bg-primary-500={page.url.pathname.startsWith(href)}
 						onclick={() => (showMoreDrawer = false)}
@@ -85,7 +86,7 @@
 				{#each navFooterInfo as { label, href, icon } (label)}
 					{@const Icon = icon}
 					<a
-						{href}
+						href={resolve(href, {})}
 						class="flex items-center gap-3 rounded-lg p-3 hover:bg-surface-200-800"
 						class:bg-primary-500={page.url.pathname.startsWith(href)}
 						onclick={() => (showMoreDrawer = false)}
