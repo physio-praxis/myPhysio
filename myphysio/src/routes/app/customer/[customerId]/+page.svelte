@@ -19,10 +19,21 @@
 	let breadCrumb = data.breadCrumb;
 	let deleteErrors = $derived(form?.errors ?? {});
 
+	const formatAddress = (customer: CustomerDetails) => {
+		const parts = [
+			customer.street,
+			customer.additionalAddress,
+			`${customer.postalCode || ''} ${customer.city || ''}`.trim(),
+			customer.country
+		].filter((part) => part && part.trim());
+
+		return parts.length > 0 ? parts.join(', ') : '---';
+	};
+
 	let customerDetails = [
 		{ detailName: 'Telefonnummer', detailValue: customer.phoneNumber },
 		{ detailName: 'E-Mail', detailValue: customer.email },
-		{ detailName: 'Adresse', detailValue: customer.address },
+		{ detailName: 'Adresse', detailValue: formatAddress(customer) },
 		{ detailName: 'Beachtenswerte Notizen', detailValue: 'TBD' },
 		{
 			detailName: 'DSGVO-Einwilligung unterzeichnet',

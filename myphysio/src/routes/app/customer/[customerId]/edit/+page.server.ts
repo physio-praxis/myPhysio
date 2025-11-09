@@ -95,7 +95,11 @@ export const actions: Actions = {
 				lastName: parsed.data.lastName,
 				email: parsed.data.email || null,
 				phoneNumber: parsed.data.phone || null,
-				address: parsed.data.address || null
+				street: parsed.data.street || null,
+				additionalAddress: parsed.data.additionalAddress || null,
+				postalCode: parsed.data.postalCode || null,
+				city: parsed.data.city || null,
+				country: parsed.data.country || null
 			});
 
 			// Upload new consent file if provided

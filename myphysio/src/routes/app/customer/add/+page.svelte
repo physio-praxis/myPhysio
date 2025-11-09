@@ -7,13 +7,17 @@
 	import {
 		IdCard,
 		Mail,
-		MapPinHouse,
 		Phone,
 		LoaderCircle,
 		Save,
 		FileUp,
 		Paperclip,
-		CircleX
+		CircleX,
+		Route,
+		MapPinPlus,
+		Mailbox,
+		Building2,
+		Earth
 	} from '@lucide/svelte';
 	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
 
@@ -138,25 +142,110 @@
 			<p id="err-phone" class="w-full max-w-lg text-xs text-red-600">{errors.phone}</p>
 		{/if}
 
-		<!-- Address -->
+		<!-- Street -->
 		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
 			<div class="ig-cell preset-tonal">
-				<MapPinHouse />
+				<Route />
 			</div>
 			<input
 				class="ig-input"
 				type="text"
-				name="address"
-				placeholder="Adresse"
-				value={values.address ?? ''}
-				aria-invalid={Boolean(errors.address)}
-				aria-describedby="err-address"
+				name="street"
+				placeholder="Straße und Hausnummer"
+				value={values.street ?? ''}
+				aria-invalid={Boolean(errors.street)}
+				aria-describedby="err-street"
 			/>
 		</div>
-		{#if errors.address}
-			<p id="err-address" class="w-full max-w-lg text-xs text-red-600">{errors.address}</p>
+		{#if errors.street}
+			<p id="err-street" class="w-full max-w-lg text-xs text-red-600">{errors.street}</p>
 		{/if}
 
+		<!-- Additional Address -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<MapPinPlus />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="additionalAddress"
+				placeholder="Zusatz (Wohnung, Etage, etc..)"
+				value={values.additionalAddress ?? ''}
+				aria-invalid={Boolean(errors.additionalAddress)}
+				aria-describedby="err-additionalAddress"
+			/>
+		</div>
+		{#if errors.additionalAddress}
+			<p id="err-street" class="w-full max-w-lg text-xs text-red-600">{errors.additionalAddress}</p>
+		{/if}
+
+		<!-- City and Postal Code -->
+		<div class="grid w-full max-w-lg grid-cols-[2fr_1fr] gap-2">
+			<div class="input-group grid-cols-[auto_1fr]">
+				<div class="ig-cell preset-tonal">
+					<Building2 />
+				</div>
+				<input
+					class="ig-input"
+					type="text"
+					name="city"
+					placeholder="Stadt"
+					value={values.city ?? ''}
+					aria-invalid={Boolean(errors.city)}
+					aria-describedby="err-city"
+				/>
+			</div>
+			<div class="input-group grid-cols-[1fr] md:grid-cols-[auto_1fr]">
+				<div class="ig-cell hidden preset-tonal md:flex md:items-center md:justify-center">
+					<Mailbox />
+				</div>
+				<input
+					class="ig-input"
+					type="text"
+					name="postalCode"
+					placeholder="PLZ"
+					value={values.postalCode ?? ''}
+					aria-invalid={Boolean(errors.postalCode)}
+					aria-describedby="err-postalCode"
+				/>
+			</div>
+			{#if errors.city || errors.postalCode}
+				<div class="grid w-full max-w-lg grid-cols-[2fr_1fr] gap-2">
+					{#if errors.city}
+						<p id="err-city" class="text-xs text-red-600">
+							{errors.city}
+						</p>
+					{/if}
+					{#if errors.postalCode}
+						<p id="err-postalCode" class="text-xs text-red-600">
+							{errors.postalCode}
+						</p>
+					{/if}
+				</div>
+			{/if}
+		</div>
+
+		<!-- Country -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<Earth />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="country"
+				placeholder="Land"
+				value={values.country ?? ''}
+				aria-invalid={Boolean(errors.country)}
+				aria-describedby="err-country"
+			/>
+		</div>
+		{#if errors.country}
+			<p id="err-country" class="w-full max-w-lg text-xs text-red-600">{errors.country}</p>
+		{/if}
+
+		<!-- Consent File -->
 		<div class="w-full max-w-lg">
 			<FileUpload
 				name="consent"

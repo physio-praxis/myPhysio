@@ -55,7 +55,13 @@
 
 		<item class="flex items-center space-x-2">
 			<MapPinHouse size="20" />
-			<span>{customerSearchItem.customer.address || '---'}</span>
+			<span>
+				{#if customerSearchItem.customer.city}
+					{customerSearchItem.customer.postalCode || ''} {customerSearchItem.customer.city}
+				{:else}
+					---
+				{/if}
+			</span>
 		</item>
 
 		<hr class="mb-4" />

@@ -10,14 +10,25 @@ const phone = z
 	.refine((v) => v === '' || /^[+()\-0-9\s]{6,30}$/.test(v), 'Ungültige Telefonnummer')
 	.transform((v) => v.replace(/\s+/g, ''));
 
-const address = z.string().trim().max(1000, 'Zu lang');
+const street = z.string().trim().min(3, 'Mind. 3 Zeichen').max(200, 'Zu lang');
+const additionalAddress = z.string().trim().max(100, 'Zu lang');
+const postalCode = z
+	.string()
+	.trim()
+	.refine((v) => v === '' || /^[0-9]{4,10}$/.test(v), 'Ungültige Postleizahl');
+const city = z.string().trim().min(2, 'Mind. 2 Zeichen').max(100, 'Zu lang');
+const country = z.string().trim().min(2, 'Mind. 2 Zeichen').max(100, 'Zu lang');
 
 export const CustomerSchema = z.object({
 	firstName: name,
 	lastName: name,
 	email: email.optional().or(z.literal('')),
 	phone: phone.optional().or(z.literal('')),
-	address: address.optional().or(z.literal(''))
+	street: street.optional().or(z.literal('')),
+	additionalAddress: additionalAddress.optional().or(z.literal('')),
+	postalCode: postalCode.optional().or(z.literal('')),
+	city: city.optional().or(z.literal('')),
+	country: country.optional().or(z.literal(''))
 });
 
 export type CustomerInput = z.infer<typeof CustomerSchema>;

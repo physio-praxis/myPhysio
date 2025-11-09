@@ -50,7 +50,11 @@ export const actions: Actions = {
 				lastName: input.lastName,
 				email: input.email || null,
 				phoneNumber: input.phone || null,
-				address: input.address || null
+				street: input.street || null,
+				additionalAddress: input.additionalAddress || null,
+				postalCode: input.postalCode || null,
+				city: input.city || null,
+				country: input.country || null
 			});
 			if (consentFile) {
 				await saveConsentFile({ customerId: created.customerId, file: consentFile });
