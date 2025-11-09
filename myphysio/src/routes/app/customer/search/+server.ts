@@ -30,7 +30,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		.select({
 			customerId: customerSearchView.customerId,
 			createdAt: customerSearchView.createdAt,
-			name: customerSearchView.name,
+			firstName: customerSearchView.firstName,
+			lastName: customerSearchView.lastName,
 			email: customerSearchView.email,
 			phoneNumber: customerSearchView.phoneNumber,
 			address: customerSearchView.address,
@@ -49,7 +50,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		customer: {
 			customerId: c.customerId,
 			createdAt: c.createdAt,
-			name: c.name,
+			firstName: c.firstName,
+			lastName: c.lastName,
 			email: c.email,
 			phoneNumber: c.phoneNumber,
 			address: c.address
@@ -68,7 +70,8 @@ export const GET: RequestHandler = async ({ url }) => {
 
 function buildILikeQuery(query: string, cursorClause: SQL<unknown>) {
 	return sql`(
-        ${customerSearchView.name} ILIKE ${query}
+        ${customerSearchView.firstName} ILIKE ${query}
+        OR ${customerSearchView.lastName} ILIKE ${query}
         OR ${customerSearchView.email} ILIKE ${query}
         OR ${customerSearchView.phoneNumber} ILIKE ${query}
         OR ${customerSearchView.address} ILIKE ${query}

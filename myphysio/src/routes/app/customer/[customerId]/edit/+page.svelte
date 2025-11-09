@@ -65,7 +65,7 @@
 			</div>
 		{/if}
 
-		<!-- Name -->
+		<!-- firstName -->
 		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
 			<div class="ig-cell preset-tonal">
 				<IdCard />
@@ -73,16 +73,36 @@
 			<input
 				class="ig-input"
 				type="text"
-				name="name"
-				placeholder="Name"
+				name="firstName"
+				placeholder="Vorname"
 				required
-				value={values.name ?? customer.name ?? ''}
-				aria-invalid={Boolean(errors['name'])}
-				aria-describedby="err-name"
+				value={values.firstName ?? customer.firstName ?? ''}
+				aria-invalid={Boolean(errors['firstName'])}
+				aria-describedby="err-firstName"
 			/>
 		</div>
-		{#if errors['name']}
-			<p id="err-name" class="w-full max-w-lg text-xs text-red-600">{errors['name']}</p>
+		{#if errors['firstName']}
+			<p id="err-firstName" class="w-full max-w-lg text-xs text-red-600">{errors['firstName']}</p>
+		{/if}
+
+		<!-- lastName -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<IdCard />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="lastName"
+				placeholder="Nachname"
+				required
+				value={values.lastName ?? customer.lastName ?? ''}
+				aria-invalid={Boolean(errors['lastName'])}
+				aria-describedby="err-lastName"
+			/>
+		</div>
+		{#if errors['lastName']}
+			<p id="err-lastName" class="w-full max-w-lg text-xs text-red-600">{errors['lastName']}</p>
 		{/if}
 
 		<!-- Email -->

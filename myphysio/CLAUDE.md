@@ -98,6 +98,9 @@ The app uses a custom session system built on top of Supabase Auth:
 
 - `auth_user`, `user_session` - Authentication
 - `customer` - Pet owners with contact info
+  - Fields: `customerId` (serial PK), `firstName`, `lastName`, `email`, `phoneNumber`, `address`, `createdAt`
+  - Indexes on `firstName`, `lastName`, `email`, `phoneNumber` for search performance
+  - All contact fields are nullable except `customerId` and `createdAt`
 - `customer_consent` - GDPR consent files stored in Supabase Storage
 - `pet` - Animals belonging to customers
 - `species` - Reference table for animal types
@@ -108,9 +111,18 @@ The app uses a custom session system built on top of Supabase Auth:
 **Views**:
 
 - `customer_search_view` - Optimized for search with pet info aggregated
+  - Exposes `firstName` and `lastName` separately for search queries
+  - Search queries use ILIKE on both `firstName` and `lastName` independently
 - `customer_details_view` - Full customer details with pets array and last 5 treatments (JSON)
+  - Includes `firstName` and `lastName` fields
 
 **Repositories**: Database queries are organized in `src/lib/server/db/repos/` (e.g., `customerRepo.ts`)
+
+**Customer Repository Pattern** (`src/lib/server/db/repos/customerRepo.ts`):
+
+- `createCustomer()` - Accepts `firstName` and `lastName` as separate required fields
+- `updateCustomer()` - Updates customer with `firstName` and `lastName` in `UpdateCustomerInput` type
+- Type definitions in `src/lib/types/customerTypes.ts` include `firstName` and `lastName` across all customer-related types
 
 ### Frontend Structure
 
@@ -205,6 +217,31 @@ This approach avoids layout shift issues and simplifies state management. The `m
 
 All forms use Zod schemas defined in `src/lib/validation/`. Server actions validate input with these schemas before database operations.
 
+**Customer Validation** (`src/lib/validation/app/customer/customer.schema.ts`):
+
+```typescript
+export const CustomerSchema = z.object({
+	firstName: name, // min 2 chars, max 120, trimmed
+	lastName: name, // min 2 chars, max 120, trimmed
+	email: email.optional().or(z.literal('')),
+	phone: phone.optional().or(z.literal('')),
+	address: address.optional().or(z.literal(''))
+});
+```
+
+Both `firstName` and `lastName` are required fields. Forms display separate inputs with German labels ("Vorname" and "Nachname").
+
+**Display Pattern**: When displaying customer names in the UI, `firstName` and `lastName` are concatenated:
+
+```svelte
+<h4>
+	{customerSearchItem.customer.firstName || '---'}
+	{customerSearchItem.customer.lastName || '---'}
+</h4>
+```
+
+This pattern is used throughout components like `CustomerViewCard.svelte` and customer detail pages.
+
 ### File Uploads
 
 Customer consent files are uploaded to Supabase Storage using `supabaseAdmin` client. Metadata (SHA-256 hash, size, mime type) is stored in `customer_consent` table. The `isLatest` flag marks the current active consent.
@@ -212,6 +249,23 @@ Customer consent files are uploaded to Supabase Storage using `supabaseAdmin` cl
 ### Testing Database
 
 Tests use PGlite (in-memory PostgreSQL) initialized in `src/lib/testing/setupDb.ts`. Each test file can call `makeTestDb()` to get a fresh database instance with the full schema applied via Drizzle migrations.
+
+### Database Seeding
+
+The seed script (`scripts/seed.ts`) generates test data including customers with separate `firstName` and `lastName` fields using Faker.js:
+
+```typescript
+const customersToInsert: InsertCustomer[] = Array.from({ length: count }, () => ({
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  email: faker.internet.email().toLowerCase(),
+  phoneNumber: faker.phone.number(),
+  address: `${faker.location.streetAddress()}, ${faker.location.city()}`,
+  createdAt: new Date(...)
+}));
+```
+
+Consent file generation also uses both name fields to create realistic test files with customer names embedded in the file content.
 
 ### Error Handling
 

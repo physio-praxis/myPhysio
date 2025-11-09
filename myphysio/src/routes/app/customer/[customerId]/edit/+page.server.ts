@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const breadCrumb = [
 		{ label: 'Kunden', href: '/app/customer' },
-		{ label: cus.name || 'Unbekannt', href: `/app/customer/${customerId}` },
+		{ label: `${cus.firstName} ${cus.lastName}`, href: `/app/customer/${customerId}` },
 		{ label: 'Bearbeiten', href: `/app/customer/${customerId}/edit` }
 	];
 
@@ -91,7 +91,8 @@ export const actions: Actions = {
 			// Update customer
 			await updateCustomer({
 				customerId,
-				name: parsed.data.name,
+				firstName: parsed.data.firstName,
+				lastName: parsed.data.lastName,
 				email: parsed.data.email || null,
 				phoneNumber: parsed.data.phone || null,
 				address: parsed.data.address || null

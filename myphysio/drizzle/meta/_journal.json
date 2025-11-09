@@ -57,6 +57,13 @@
       "when": 1760192321985,
       "tag": "0007_fresh_darkstar",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1762708270794,
+      "tag": "0008_chilly_the_santerians",
+      "breakpoints": true
     }
   ]
 }

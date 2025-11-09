@@ -15,7 +15,7 @@ export async function load({ params }) {
 		.limit(1);
 
 	if (!customer) throw error(404, 'Customer not found');
-	const breadcrumbTitle = customer.name ?? `Kunde #${customer.customerId}`;
+	const breadcrumbTitle = `${customer.firstName || ''} ${customer.lastName || ''}`;
 
 	return {
 		customer,

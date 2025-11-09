@@ -46,7 +46,8 @@ export const actions: Actions = {
 		let created;
 		try {
 			created = await createCustomer({
-				name: input.name,
+				firstName: input.firstName,
+				lastName: input.lastName,
 				email: input.email || null,
 				phoneNumber: input.phone || null,
 				address: input.address || null

@@ -2,7 +2,8 @@ export type CustomerSearchItem = {
 	customer: {
 		customerId: number;
 		createdAt: Date;
-		name: string | null;
+		firstName: string | null;
+		lastName: string | null;
 		email: string | null;
 		phoneNumber: string | null;
 		address: string | null;
@@ -41,7 +42,8 @@ export type CustomerPetTreatment = {
 export type CustomerDetails = {
 	customerId: number;
 	createdAt: string;
-	name: string | null;
+	firstName: string | null;
+	lastName: string | null;
 	email: string | null;
 	phoneNumber: string | null;
 	address: string | null;
@@ -54,7 +56,8 @@ export type CustomerDetails = {
 
 export type UpdateCustomerInput = {
 	customerId: number;
-	name: string;
+	firstName: string;
+	lastName: string;
 	email?: string | null;
 	phoneNumber?: string | null;
 	address?: string | null;

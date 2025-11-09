@@ -42,7 +42,7 @@
 <Breadcrumb items={breadCrumb} />
 <article class="mb-8 flex flex-col space-y-6">
 	<header class="flex flex-col space-x-4">
-		<h3 class="h3">{customer.name}</h3>
+		<h3 class="h3">{customer.firstName} {customer.lastName}</h3>
 		<div class="flex items-center justify-between">
 			<span class="text-gray-500">Kunden-ID: {customer.customerId}</span>
 			<div class="flex space-x-2">
@@ -133,7 +133,9 @@
 
 			<article class="mb-4">
 				<p class="mb-2">
-					Sind Sie sicher, dass Sie den Kunden <code class="code">{customer.name}</code> löschen möchten?
+					Sind Sie sicher, dass Sie den Kunden <code class="code"
+						>{customer.firstName} {customer.lastName}</code
+					> löschen möchten?
 				</p>
 				<p>Folgendes wird gelöscht:</p>
 				<ul class="mb-2 list-inside list-disc">

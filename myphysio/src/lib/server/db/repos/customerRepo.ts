@@ -14,7 +14,8 @@ export async function createCustomer(input: Input) {
 		.insert(customer)
 		.values({
 			createdAt: now,
-			name: input.name,
+			firstName: input.firstName,
+			lastName: input.lastName,
 			email: input.email ?? null,
 			phoneNumber: input.phoneNumber ?? null,
 			address: input.address ?? null

@@ -13,7 +13,8 @@ const phone = z
 const address = z.string().trim().max(1000, 'Zu lang');
 
 export const CustomerSchema = z.object({
-	name: name,
+	firstName: name,
+	lastName: name,
 	email: email.optional().or(z.literal('')),
 	phone: phone.optional().or(z.literal('')),
 	address: address.optional().or(z.literal(''))

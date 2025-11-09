@@ -42,14 +42,16 @@ export const customer = pgTable(
 	{
 		customerId: serial('customer_id').primaryKey(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
-		name: text('name'),
+		firstName: text('first_name'),
+		lastName: text('last_name'),
 		email: text('email'),
 		phoneNumber: text('phone_number'),
 		address: text('address')
 	},
 	(t) => ({
 		ixCustomerCreatedId: index('ix_customer_created_id').on(t.createdAt, t.customerId),
-		ixCustomerName: index('ix_customer_name').on(t.name),
+		ixCustomerFirstName: index('ix_customer_first_name').on(t.firstName),
+		ixCustomerLastName: index('ix_customer_last_name').on(t.lastName),
 		ixCustomerEmail: index('ix_customer_email').on(t.email),
 		ixCustomerPhone: index('ix_customer_phone').on(t.phoneNumber)
 	})
@@ -207,7 +209,8 @@ export const customerSearchView = pgView('customer_search_view')
 			.select({
 				customerId: customer.customerId,
 				createdAt: customer.createdAt,
-				name: customer.name,
+				firstName: customer.firstName,
+				lastName: customer.lastName,
 				email: customer.email,
 				phoneNumber: customer.phoneNumber,
 				address: customer.address,
@@ -246,7 +249,8 @@ export const customerSearchView = pgView('customer_search_view')
 			.groupBy(
 				customer.customerId,
 				customer.createdAt,
-				customer.name,
+				customer.firstName,
+				customer.lastName,
 				customer.email,
 				customer.phoneNumber,
 				customer.address
@@ -261,7 +265,8 @@ export const customerDetailsView = pgView('customer_details_view')
 			.select({
 				customerId: customer.customerId,
 				createdAt: customer.createdAt,
-				name: customer.name,
+				firstName: customer.firstName,
+				lastName: customer.lastName,
 				email: customer.email,
 				phoneNumber: customer.phoneNumber,
 				address: customer.address,
