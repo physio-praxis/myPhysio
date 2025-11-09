@@ -132,7 +132,7 @@ The app uses a custom session system built on top of Supabase Auth:
 **State Management**:
 
 - Svelte 5 runes (`$state`, `$derived`, `$effect`)
-- Stores in `src/lib/stores/` (e.g., `breakpoint.ts` for responsive design)
+- No global stores currently - responsive design handled via Tailwind CSS classes
 
 **Navigation Pattern**:
 
@@ -160,7 +160,6 @@ src/
 │   │   │   └── repos/       # Repository pattern for queries
 │   │   ├── session.ts       # Session management
 │   │   └── supabase.ts      # Supabase clients (admin, anon)
-│   ├── stores/              # Svelte stores
 │   ├── testing/             # Test utilities (testDb, setupDb)
 │   ├── types/               # TypeScript types
 │   ├── utils/               # Shared utilities
@@ -170,6 +169,36 @@ src/
 ```
 
 ## Important Patterns
+
+### URL Resolution
+
+All navigation links use `resolve()` from `$app/paths` to ensure URLs work correctly even when deployed to a subpath:
+
+```svelte
+import {resolve} from '$app/paths';
+
+<a href={resolve('/app/customer', {})}>Customer</a>
+```
+
+This is required to pass ESLint's `svelte/no-navigation-without-resolve` rule. `Navigation.Tile` components handle this automatically via their `href` prop.
+
+### Responsive Design
+
+The app uses **CSS-only responsive design** with Tailwind's breakpoint classes instead of JavaScript-based breakpoint detection:
+
+```svelte
+<!-- Mobile only -->
+<div class="block md:hidden">
+	<Navigation.Bar>...</Navigation.Bar>
+</div>
+
+<!-- Desktop only -->
+<div class="hidden md:block">
+	<Navigation.Rail>...</Navigation.Rail>
+</div>
+```
+
+This approach avoids layout shift issues and simplifies state management. The `md:` breakpoint (768px) is used to switch between mobile and desktop layouts.
 
 ### Validation
 
