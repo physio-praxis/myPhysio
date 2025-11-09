@@ -18,8 +18,8 @@
 	const navInfo = [
 		{ label: 'Kalendar', href: '/app/calendar', icon: Calendar },
 		{ label: 'Kunde', href: '/app/customer', icon: User },
-		{ label: 'Rechnung', href: '/app/invoice', icon: ReceiptEuro },
 		{ label: 'Behandlung', href: '/app/treatment', icon: Stethoscope },
+		{ label: 'Rechnung', href: '/app/invoice', icon: ReceiptEuro },
 		{ label: 'Einstellungen', href: '/app/settings', icon: Settings, classes: 'mt-auto' }
 	];
 	const mobilePrimaryNavItems = navInfo.slice(0, 4);
