@@ -81,12 +81,12 @@
 				placeholder="Vorname"
 				required
 				value={values.firstName ?? customer.firstName ?? ''}
-				aria-invalid={Boolean(errors['firstName'])}
+				aria-invalid={Boolean(errors.firstName)}
 				aria-describedby="err-firstName"
 			/>
 		</div>
-		{#if errors['firstName']}
-			<p id="err-firstName" class="w-full max-w-lg text-xs text-red-600">{errors['firstName']}</p>
+		{#if errors.firstName}
+			<p id="err-firstName" class="w-full max-w-lg text-xs text-red-600">{errors.firstName}</p>
 		{/if}
 
 		<!-- lastName -->
@@ -101,12 +101,12 @@
 				placeholder="Nachname"
 				required
 				value={values.lastName ?? customer.lastName ?? ''}
-				aria-invalid={Boolean(errors['lastName'])}
+				aria-invalid={Boolean(errors.lastName)}
 				aria-describedby="err-lastName"
 			/>
 		</div>
-		{#if errors['lastName']}
-			<p id="err-lastName" class="w-full max-w-lg text-xs text-red-600">{errors['lastName']}</p>
+		{#if errors.lastName}
+			<p id="err-lastName" class="w-full max-w-lg text-xs text-red-600">{errors.lastName}</p>
 		{/if}
 
 		<!-- Email -->
@@ -120,12 +120,12 @@
 				name="email"
 				placeholder="E-mail"
 				value={values.email ?? customer.email ?? ''}
-				aria-invalid={Boolean(errors['email'])}
+				aria-invalid={Boolean(errors.email)}
 				aria-describedby="err-email"
 			/>
 		</div>
-		{#if errors['email']}
-			<p id="err-email" class="w-full max-w-lg text-xs text-red-600">{errors['email']}</p>
+		{#if errors.email}
+			<p id="err-email" class="w-full max-w-lg text-xs text-red-600">{errors.email}</p>
 		{/if}
 
 		<!-- Phone Number -->
@@ -139,12 +139,12 @@
 				name="phone"
 				placeholder="Telefonnummer"
 				value={values.phone ?? customer.phoneNumber ?? ''}
-				aria-invalid={Boolean(errors['phone'])}
+				aria-invalid={Boolean(errors.phone)}
 				aria-describedby="err-phone"
 			/>
 		</div>
-		{#if errors['phone']}
-			<p id="err-phone" class="w-full max-w-lg text-xs text-red-600">{errors['phone']}</p>
+		{#if errors.phone}
+			<p id="err-phone" class="w-full max-w-lg text-xs text-red-600">{errors.phone}</p>
 		{/if}
 
 		<!-- Street -->
@@ -182,7 +182,9 @@
 			/>
 		</div>
 		{#if errors.additionalAddress}
-			<p id="err-street" class="w-full max-w-lg text-xs text-red-600">{errors.additionalAddress}</p>
+			<p id="err-additionalAddress" class="w-full max-w-lg text-xs text-red-600">
+				{errors.additionalAddress}
+			</p>
 		{/if}
 
 		<!-- City and Postal Code -->
@@ -278,16 +280,16 @@
 				classes="w-full"
 				label="DSGVO Datei Upload"
 				allowDrop
-				invalid={Boolean(errors['consentFile'])}
+				invalid={Boolean(errors.consentFile)}
 			>
 				{#snippet iconInterface()}<FileUp class="size-8" />{/snippet}
 				{#snippet iconFile()}<Paperclip class="size-4" />{/snippet}
 				{#snippet iconFileRemove()}<CircleX class="size-4" />{/snippet}
 			</FileUpload>
 		</div>
-		{#if errors['consentFile']}
+		{#if errors.consentFile}
 			<p id="err-consentFile" class="w-full max-w-lg text-xs text-red-600">
-				{errors['consentFile']}
+				{errors.consentFile}
 			</p>
 		{/if}
 

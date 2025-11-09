@@ -313,7 +313,93 @@ Consent file generation also uses both name fields to create realistic test file
 
 ### Error Handling
 
-SvelteKit form actions return `{ success: boolean, error?: string }`. Failed actions set form-level errors displayed in the UI.
+**Server-Side Pattern** (`+page.server.ts`):
+
+Form actions validate using Zod schemas and return errors as `Record<string, string>`:
+
+```typescript
+const parsed = CustomerSchema.safeParse(raw);
+
+if (!parsed.success) {
+	const errors: Record<string, string> = {};
+	for (const issue of parsed.error.issues) {
+		const issueKey = String(issue.path[0] ?? '_');
+		if (!errors[issueKey]) errors[issueKey] = issue.message;
+	}
+	return fail(400, { values: raw, errors });
+}
+```
+
+Global errors (server failures, database errors) use the special `_global` key:
+
+```typescript
+return fail(500, {
+	values: raw,
+	errors: {
+		_global: 'Unerwarteter Fehler. Bitte später erneut versuchen.'
+	} as Record<string, string>
+});
+```
+
+**Client-Side Pattern** (`+page.svelte`):
+
+Forms must follow this consistent error handling pattern:
+
+1. **Error Object Setup**: Extract errors from unified form state using dot notation
+
+```svelte
+<script>
+	const unifiedForm = $derived(form ?? data.form ?? {});
+	const errors = $derived(unifiedForm?.errors ?? {});
+</script>
+```
+
+2. **Global Error Display**: Show `_global` errors at top of form
+
+```svelte
+{#if errors._global}
+	<div class="w-full max-w-lg rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+		{errors._global}
+	</div>
+{/if}
+```
+
+3. **Field-Level Errors**: Use consistent pattern for each input field
+
+```svelte
+<!-- Input with ARIA attributes -->
+<input
+	class="ig-input"
+	type="text"
+	name="firstName"
+	placeholder="Vorname"
+	required
+	value={values.firstName ?? ''}
+	aria-invalid={Boolean(errors.firstName)}
+	aria-describedby="err-firstName"
+/>
+
+<!-- Error message paragraph -->
+{#if errors.firstName}
+	<p id="err-firstName" class="w-full max-w-lg text-xs text-red-600">{errors.firstName}</p>
+{/if}
+```
+
+**Critical Rules**:
+
+- **Always use dot notation** for error access: `errors.firstName`, `errors.additionalAddress`, `errors.city` (never bracket notation like `errors['firstName']`)
+- **Error paragraph IDs must match field names exactly**: `id="err-{fieldName}"` (e.g., `id="err-firstName"`, `id="err-additionalAddress"`)
+- **ARIA attributes are required** for accessibility:
+  - `aria-invalid={Boolean(errors.fieldName)}` - Indicates validation state
+  - `aria-describedby="err-fieldName"` - Links input to error message
+- **Maintain consistency across all forms** - All forms in the application must follow this identical pattern
+
+This standardization ensures:
+
+- Predictable error handling across the application
+- Proper accessibility support for screen readers
+- Easier maintenance and debugging
+- Consistent user experience
 
 ### Loading Application Metadata
 

@@ -177,7 +177,9 @@
 			/>
 		</div>
 		{#if errors.additionalAddress}
-			<p id="err-street" class="w-full max-w-lg text-xs text-red-600">{errors.additionalAddress}</p>
+			<p id="err-additionalAddress" class="w-full max-w-lg text-xs text-red-600">
+				{errors.additionalAddress}
+			</p>
 		{/if}
 
 		<!-- City and Postal Code -->
