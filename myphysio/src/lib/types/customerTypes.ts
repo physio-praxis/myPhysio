@@ -2,10 +2,15 @@ export type CustomerSearchItem = {
 	customer: {
 		customerId: number;
 		createdAt: Date;
-		name: string | null;
+		firstName: string | null;
+		lastName: string | null;
 		email: string | null;
 		phoneNumber: string | null;
-		address: string | null;
+		street: string | null;
+		additionalAddress: string | null;
+		postalCode: string | null;
+		city: string | null;
+		country: string | null;
 	};
 	petsLine: string;
 	badges: { hasConcent: boolean };
@@ -41,10 +46,15 @@ export type CustomerPetTreatment = {
 export type CustomerDetails = {
 	customerId: number;
 	createdAt: string;
-	name: string | null;
+	firstName: string | null;
+	lastName: string | null;
 	email: string | null;
 	phoneNumber: string | null;
-	address: string | null;
+	street: string | null;
+	additionalAddress: string | null;
+	postalCode: string | null;
+	city: string | null;
+	country: string | null;
 	hasConsent: boolean;
 	consentFilename: string | null;
 	consentUploadedAt: string | null;
@@ -54,8 +64,13 @@ export type CustomerDetails = {
 
 export type UpdateCustomerInput = {
 	customerId: number;
-	name: string;
+	firstName: string;
+	lastName: string;
 	email?: string | null;
 	phoneNumber?: string | null;
-	address?: string | null;
+	street: string | null;
+	additionalAddress: string | null;
+	postalCode: string | null;
+	city: string | null;
+	country: string | null;
 };

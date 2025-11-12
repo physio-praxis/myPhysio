@@ -25,7 +25,10 @@
 		data-sveltekit-prefetch
 	>
 		<header class="mb-4 flex justify-between">
-			<h4 class="truncate h4">{customerSearchItem.customer.name || '---'}</h4>
+			<h4 class="truncate h4">
+				{customerSearchItem.customer.firstName || '---'}
+				{customerSearchItem.customer.lastName || '---'}
+			</h4>
 			<div class="flex space-x-2">
 				{#if customerSearchItem.badges.hasConcent}
 					<span class="text-success-500">
@@ -52,7 +55,13 @@
 
 		<item class="flex items-center space-x-2">
 			<MapPinHouse size="20" />
-			<span>{customerSearchItem.customer.address || '---'}</span>
+			<span>
+				{#if customerSearchItem.customer.city}
+					{customerSearchItem.customer.postalCode || ''} {customerSearchItem.customer.city}
+				{:else}
+					---
+				{/if}
+			</span>
 		</item>
 
 		<hr class="mb-4" />

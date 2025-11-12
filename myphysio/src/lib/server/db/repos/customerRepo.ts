@@ -14,10 +14,15 @@ export async function createCustomer(input: Input) {
 		.insert(customer)
 		.values({
 			createdAt: now,
-			name: input.name,
+			firstName: input.firstName,
+			lastName: input.lastName,
 			email: input.email ?? null,
 			phoneNumber: input.phoneNumber ?? null,
-			address: input.address ?? null
+			street: input.street ?? null,
+			additionalAddress: input.additionalAddress ?? null,
+			postalCode: input.postalCode ?? null,
+			city: input.city ?? null,
+			country: input.country ?? null
 		})
 		.returning();
 

@@ -98,8 +98,8 @@ function getSupabaseAdmin(): SupabaseClient<unknown> | null {
 	return createClient(url, key, { auth: { persistSession: false } });
 }
 
-function buildConsentFileContents(customerName: string) {
-	const content = `DSGVO/Einwilligung – Kunde: ${customerName || 'Unbekannt'}
+function buildConsentFileContents(customerFirstName: string, customerLastName: string) {
+	const content = `DSGVO/Einwilligung – Kunde: ${customerFirstName} ${customerLastName}
 Ich bestätige, dass ich die Datenschutzbestimmungen gelesen habe und einverstanden bin.
 Datum: ${new Date().toISOString().slice(0, 10)}
 (Seed/Test-file)
@@ -177,10 +177,18 @@ async function SeedCustomers(db: DB, count: number) {
 	console.log(`Inserting ${count} customers...`);
 	const now = Date.now();
 	const customersToInsert: InsertCustomer[] = Array.from({ length: count }, () => ({
-		name: faker.person.fullName(),
+		firstName: faker.person.firstName(),
+		lastName: faker.person.lastName(),
 		email: faker.internet.email().toLowerCase(),
 		phoneNumber: faker.phone.number(),
-		address: `${faker.location.streetAddress()}, ${faker.location.city()}`,
+		street: faker.location.streetAddress(),
+		additionalAddress:
+			faker.helpers.maybe(() => `Wohnung ${faker.number.int({ min: 1, max: 99 })}`, {
+				probability: 0.3
+			}) ?? null,
+		postalCode: faker.location.zipCode('####'),
+		city: faker.location.city(),
+		country: 'Österreich',
 		createdAt: new Date(now - faker.number.int({ min: 0, max: 7_776_000 }) * 1000)
 	}));
 	await db.insert(customer).values(customersToInsert);
@@ -249,7 +257,8 @@ async function SeedConsentFiles(
 
 		for (const cus of pick) {
 			const { buffer, filename, mime } = buildConsentFileContents(
-				cus.name ?? `Customer-${cus.customerId}`
+				cus.firstName ?? `Customer-${cus.customerId}`,
+				cus.lastName ?? ''
 			);
 			const key = `${cus.customerId}/${randomUUID()}-${filename}`;
 			const sha = sha256Hex(buffer);

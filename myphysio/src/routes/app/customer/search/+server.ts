@@ -30,10 +30,15 @@ export const GET: RequestHandler = async ({ url }) => {
 		.select({
 			customerId: customerSearchView.customerId,
 			createdAt: customerSearchView.createdAt,
-			name: customerSearchView.name,
+			firstName: customerSearchView.firstName,
+			lastName: customerSearchView.lastName,
 			email: customerSearchView.email,
 			phoneNumber: customerSearchView.phoneNumber,
-			address: customerSearchView.address,
+			street: customerSearchView.street,
+			additionalAddress: customerSearchView.additionalAddress,
+			postalCode: customerSearchView.postalCode,
+			city: customerSearchView.city,
+			country: customerSearchView.country,
 			petsLine: customerSearchView.petsLine,
 			hasConsent: customerSearchView.hasConsent
 		})
@@ -49,10 +54,15 @@ export const GET: RequestHandler = async ({ url }) => {
 		customer: {
 			customerId: c.customerId,
 			createdAt: c.createdAt,
-			name: c.name,
+			firstName: c.firstName,
+			lastName: c.lastName,
 			email: c.email,
 			phoneNumber: c.phoneNumber,
-			address: c.address
+			street: c.street,
+			additionalAddress: c.additionalAddress,
+			postalCode: c.postalCode,
+			city: c.city,
+			country: c.country
 		},
 		petsLine: c.petsLine,
 		badges: { hasConcent: c.hasConsent }
@@ -68,10 +78,12 @@ export const GET: RequestHandler = async ({ url }) => {
 
 function buildILikeQuery(query: string, cursorClause: SQL<unknown>) {
 	return sql`(
-        ${customerSearchView.name} ILIKE ${query}
+        ${customerSearchView.firstName} ILIKE ${query}
+        OR ${customerSearchView.lastName} ILIKE ${query}
         OR ${customerSearchView.email} ILIKE ${query}
         OR ${customerSearchView.phoneNumber} ILIKE ${query}
-        OR ${customerSearchView.address} ILIKE ${query}
+        OR ${customerSearchView.city} ILIKE ${query}
+        OR ${customerSearchView.postalCode} ILIKE ${query}
         OR ${customerSearchView.petsText} ILIKE ${query}
     ) AND ${cursorClause}`;
 }

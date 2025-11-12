@@ -98,6 +98,10 @@ The app uses a custom session system built on top of Supabase Auth:
 
 - `auth_user`, `user_session` - Authentication
 - `customer` - Pet owners with contact info
+  - Fields: `customerId` (serial PK), `firstName`, `lastName`, `email`, `phoneNumber`, `street`, `additionalAddress`, `postalCode`, `city`, `country`, `createdAt`
+  - Indexes on `firstName`, `lastName`, `email`, `phoneNumber`, `street`, `city` for search performance
+  - All contact and address fields are nullable except `customerId` and `createdAt`
+  - Address is stored as five separate optional fields instead of a single combined field
 - `customer_consent` - GDPR consent files stored in Supabase Storage
 - `pet` - Animals belonging to customers
 - `species` - Reference table for animal types
@@ -108,9 +112,20 @@ The app uses a custom session system built on top of Supabase Auth:
 **Views**:
 
 - `customer_search_view` - Optimized for search with pet info aggregated
+  - Exposes `firstName` and `lastName` separately for search queries
+  - Includes all five address fields: `street`, `additionalAddress`, `postalCode`, `city`, `country`
+  - Search queries use ILIKE on both `firstName` and `lastName` independently
 - `customer_details_view` - Full customer details with pets array and last 5 treatments (JSON)
+  - Includes `firstName` and `lastName` fields
+  - Includes all five address fields for complete customer information
 
 **Repositories**: Database queries are organized in `src/lib/server/db/repos/` (e.g., `customerRepo.ts`)
+
+**Customer Repository Pattern** (`src/lib/server/db/repos/customerRepo.ts`):
+
+- `createCustomer()` - Accepts `firstName` and `lastName` as separate required fields, plus five optional address fields (`street`, `additionalAddress`, `postalCode`, `city`, `country`)
+- `updateCustomer()` - Updates customer with all name and address fields in `UpdateCustomerInput` type
+- Type definitions in `src/lib/types/customerTypes.ts` include `firstName`, `lastName`, and all five address fields across all customer-related types (CustomerDetails, UpdateCustomerInput, CustomerSearchItem)
 
 ### Frontend Structure
 
@@ -205,6 +220,60 @@ This approach avoids layout shift issues and simplifies state management. The `m
 
 All forms use Zod schemas defined in `src/lib/validation/`. Server actions validate input with these schemas before database operations.
 
+**Customer Validation** (`src/lib/validation/app/customer/customer.schema.ts`):
+
+```typescript
+export const CustomerSchema = z.object({
+	firstName: name, // min 2 chars, max 120, trimmed - REQUIRED
+	lastName: name, // min 2 chars, max 120, trimmed - REQUIRED
+	email: email.optional().or(z.literal('')),
+	phone: phone.optional().or(z.literal('')),
+	street: street.optional().or(z.literal('')), // min 3 chars, max 200
+	additionalAddress: additionalAddress.optional().or(z.literal('')), // max 100
+	postalCode: postalCode.optional().or(z.literal('')), // 4-10 digits
+	city: city.optional().or(z.literal('')), // min 2 chars, max 100
+	country: country.optional().or(z.literal('')) // min 2 chars, max 100
+});
+```
+
+**Required Fields**: `firstName` and `lastName` are the only required fields. All address fields are optional.
+
+**Display Patterns**:
+
+Name display - concatenates first and last name:
+
+```svelte
+<h4>
+	{customerSearchItem.customer.firstName || '---'}
+	{customerSearchItem.customer.lastName || '---'}
+</h4>
+```
+
+Address display - combines city and postal code (from `CustomerViewCard.svelte`):
+
+```svelte
+<span>
+	{#if customerSearchItem.customer.city}
+		{customerSearchItem.customer.postalCode || ''} {customerSearchItem.customer.city}
+	{:else}
+		---
+	{/if}
+</span>
+```
+
+**Form UI Pattern** (`/app/customer/add`, `/app/customer/[customerId]/edit`):
+
+Address fields are displayed in a specific layout with dedicated icons:
+
+- `street` - Icon: Route (Lucide) - Placeholder: "Straße und Hausnummer"
+- `additionalAddress` - Icon: MapPinPlus - Placeholder: "Zusatz (Wohnung, Etage, etc..)"
+- `city` and `postalCode` - Side-by-side layout with 2fr:1fr grid ratio
+  - `city` (first) - Icon: Building2 - Placeholder: "Stadt"
+  - `postalCode` (second) - Icon: Mailbox (hidden on mobile) - Placeholder: "PLZ"
+- `country` - Icon: Earth - Placeholder: "Land"
+
+The postal code icon is hidden on mobile (`hidden md:flex`) to save space while maintaining a clean layout.
+
 ### File Uploads
 
 Customer consent files are uploaded to Supabase Storage using `supabaseAdmin` client. Metadata (SHA-256 hash, size, mime type) is stored in `customer_consent` table. The `isLatest` flag marks the current active consent.
@@ -213,9 +282,124 @@ Customer consent files are uploaded to Supabase Storage using `supabaseAdmin` cl
 
 Tests use PGlite (in-memory PostgreSQL) initialized in `src/lib/testing/setupDb.ts`. Each test file can call `makeTestDb()` to get a fresh database instance with the full schema applied via Drizzle migrations.
 
+### Database Seeding
+
+The seed script (`scripts/seed.ts`) generates test data including customers with separate `firstName` and `lastName` fields, plus structured address data using Faker.js:
+
+```typescript
+const customersToInsert: InsertCustomer[] = Array.from({ length: count }, () => ({
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  email: faker.internet.email().toLowerCase(),
+  phoneNumber: faker.phone.number(),
+  street: faker.location.streetAddress(),
+  additionalAddress: faker.helpers.maybe(() => `Wohnung ${faker.number.int({ min: 1, max: 99 })}`, { probability: 0.3 }) ?? null,
+  postalCode: faker.location.zipCode('####'),
+  city: faker.location.city(),
+  country: 'Österreich',
+  createdAt: new Date(...)
+}));
+```
+
+This generates realistic German/Austrian address data with:
+
+- Street addresses from Faker
+- Optional additional address info (30% probability) like "Wohnung 42"
+- 4-digit postal codes matching Austrian format
+- Random city names
+- Default country set to "Österreich" (Austria)
+
+Consent file generation also uses both name fields to create realistic test files with customer names embedded in the file content.
+
 ### Error Handling
 
-SvelteKit form actions return `{ success: boolean, error?: string }`. Failed actions set form-level errors displayed in the UI.
+**Server-Side Pattern** (`+page.server.ts`):
+
+Form actions validate using Zod schemas and return errors as `Record<string, string>`:
+
+```typescript
+const parsed = CustomerSchema.safeParse(raw);
+
+if (!parsed.success) {
+	const errors: Record<string, string> = {};
+	for (const issue of parsed.error.issues) {
+		const issueKey = String(issue.path[0] ?? '_');
+		if (!errors[issueKey]) errors[issueKey] = issue.message;
+	}
+	return fail(400, { values: raw, errors });
+}
+```
+
+Global errors (server failures, database errors) use the special `_global` key:
+
+```typescript
+return fail(500, {
+	values: raw,
+	errors: {
+		_global: 'Unerwarteter Fehler. Bitte später erneut versuchen.'
+	} as Record<string, string>
+});
+```
+
+**Client-Side Pattern** (`+page.svelte`):
+
+Forms must follow this consistent error handling pattern:
+
+1. **Error Object Setup**: Extract errors from unified form state using dot notation
+
+```svelte
+<script>
+	const unifiedForm = $derived(form ?? data.form ?? {});
+	const errors = $derived(unifiedForm?.errors ?? {});
+</script>
+```
+
+2. **Global Error Display**: Show `_global` errors at top of form
+
+```svelte
+{#if errors._global}
+	<div class="w-full max-w-lg rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+		{errors._global}
+	</div>
+{/if}
+```
+
+3. **Field-Level Errors**: Use consistent pattern for each input field
+
+```svelte
+<!-- Input with ARIA attributes -->
+<input
+	class="ig-input"
+	type="text"
+	name="firstName"
+	placeholder="Vorname"
+	required
+	value={values.firstName ?? ''}
+	aria-invalid={Boolean(errors.firstName)}
+	aria-describedby="err-firstName"
+/>
+
+<!-- Error message paragraph -->
+{#if errors.firstName}
+	<p id="err-firstName" class="w-full max-w-lg text-xs text-red-600">{errors.firstName}</p>
+{/if}
+```
+
+**Critical Rules**:
+
+- **Always use dot notation** for error access: `errors.firstName`, `errors.additionalAddress`, `errors.city` (never bracket notation like `errors['firstName']`)
+- **Error paragraph IDs must match field names exactly**: `id="err-{fieldName}"` (e.g., `id="err-firstName"`, `id="err-additionalAddress"`)
+- **ARIA attributes are required** for accessibility:
+  - `aria-invalid={Boolean(errors.fieldName)}` - Indicates validation state
+  - `aria-describedby="err-fieldName"` - Links input to error message
+- **Maintain consistency across all forms** - All forms in the application must follow this identical pattern
+
+This standardization ensures:
+
+- Predictable error handling across the application
+- Proper accessibility support for screen readers
+- Easier maintenance and debugging
+- Consistent user experience
 
 ### Loading Application Metadata
 
