@@ -6,6 +6,8 @@ import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { ConsentFileSchema, CustomerSchema } from '$lib/validation/app/customer/customer.schema';
 import { saveConsentFile, updateCustomer } from '$lib/server/db/repos/customerRepo';
 import { toStringMap } from '$lib/utils/formUtils';
+import { uniqueCustomerEmail as uniqueCustomerEmailConstraint, uniqueCustomerPhone as uniqueCustomerPhoneConstraint } from '$lib/server/db/constants';
+import { getErrorConstraint, isUniqueViolation } from '$lib/utils/exeptionUtils';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const customerId = parseInt(params.customerId);
@@ -106,7 +108,16 @@ export const actions: Actions = {
 			if (consentFileObj) {
 				await saveConsentFile({ customerId, file: consentFileObj });
 			}
-		} catch {
+		} catch (_err: unknown) {
+			if (isUniqueViolation(_err)) {
+				const constraint = getErrorConstraint(_err);
+				return fail(400, {
+					values: raw, errors: {
+						email: constraint === uniqueCustomerEmailConstraint ? 'Diese Email ist bereits vergeben. Bitte verwende eine andere.' : null,
+						phone: constraint === uniqueCustomerPhoneConstraint ? 'Diese Telefonnummer ist bereits vergeben. Bitte verwende eine andere.' : null
+					}
+				});
+			}
 			return fail(500, {
 				values: raw,
 				errors: {
