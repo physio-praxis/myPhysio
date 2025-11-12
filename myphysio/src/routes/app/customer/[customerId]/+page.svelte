@@ -34,6 +34,7 @@
 		{ detailName: 'Telefonnummer', detailValue: customer.phoneNumber },
 		{ detailName: 'E-Mail', detailValue: customer.email },
 		{ detailName: 'Adresse', detailValue: formatAddress(customer) },
+		{ detailName: 'Beachtenswerte Notizen', detailValue: 'TBD' },
 		{
 			detailName: 'DSGVO-Einwilligung unterzeichnet',
 			detailValue: customer.hasConsent
