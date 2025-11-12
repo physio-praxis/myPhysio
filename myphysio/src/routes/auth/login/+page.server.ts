@@ -44,7 +44,7 @@ export const actions: Actions = {
 		// create session
 		const user = userResult.user;
 		const userId = user.id;
-		await ensureAuthUser({ id: userId, email: user.email ?? null });
+		await ensureAuthUser({ id: userId, email: user.email ?? '' });
 		const session = await createSessionForUserId(userId);
 		setSessionCookie(cookies, session);
 

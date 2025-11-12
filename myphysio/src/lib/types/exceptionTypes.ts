@@ -1,4 +1,4 @@
 export interface PostgresError {
-    code: string;
-    constraint?: string;
+	code: string;
+	constraint?: string;
 }

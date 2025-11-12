@@ -6,7 +6,10 @@ import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { ConsentFileSchema, CustomerSchema } from '$lib/validation/app/customer/customer.schema';
 import { saveConsentFile, updateCustomer } from '$lib/server/db/repos/customerRepo';
 import { toStringMap } from '$lib/utils/formUtils';
-import { uniqueCustomerEmail as uniqueCustomerEmailConstraint, uniqueCustomerPhone as uniqueCustomerPhoneConstraint } from '$lib/server/db/constants';
+import {
+	uniqueCustomerEmail as uniqueCustomerEmailConstraint,
+	uniqueCustomerPhone as uniqueCustomerPhoneConstraint
+} from '$lib/server/db/constants';
 import { getErrorConstraint, isUniqueViolation } from '$lib/utils/exeptionUtils';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -95,13 +98,13 @@ export const actions: Actions = {
 				customerId,
 				firstName: parsed.data.firstName,
 				lastName: parsed.data.lastName,
-				email: parsed.data.email || null,
-				phoneNumber: parsed.data.phone || null,
-				street: parsed.data.street || null,
+				email: parsed.data.email,
+				phoneNumber: parsed.data.phone,
+				street: parsed.data.street,
 				additionalAddress: parsed.data.additionalAddress || null,
-				postalCode: parsed.data.postalCode || null,
-				city: parsed.data.city || null,
-				country: parsed.data.country || null
+				postalCode: parsed.data.postalCode,
+				city: parsed.data.city,
+				country: parsed.data.country
 			});
 
 			// Upload new consent file if provided
@@ -112,9 +115,16 @@ export const actions: Actions = {
 			if (isUniqueViolation(_err)) {
 				const constraint = getErrorConstraint(_err);
 				return fail(400, {
-					values: raw, errors: {
-						email: constraint === uniqueCustomerEmailConstraint ? 'Diese Email ist bereits vergeben. Bitte verwende eine andere.' : null,
-						phone: constraint === uniqueCustomerPhoneConstraint ? 'Diese Telefonnummer ist bereits vergeben. Bitte verwende eine andere.' : null
+					values: raw,
+					errors: {
+						email:
+							constraint === uniqueCustomerEmailConstraint
+								? 'Diese Email ist bereits vergeben. Bitte verwende eine andere.'
+								: null,
+						phone:
+							constraint === uniqueCustomerPhoneConstraint
+								? 'Diese Telefonnummer ist bereits vergeben. Bitte verwende eine andere.'
+								: null
 					}
 				});
 			}

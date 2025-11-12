@@ -22,7 +22,9 @@
 		{ detailName: 'Tierart', detailValue: selectedPet?.species ?? '-' },
 		{
 			detailName: 'Geburtsdatum',
-			detailValue: selectedPet?.birthdate ? `${formatDateDMY(fromDateOnly(selectedPet.birthdate))} (${selectedPet.age})` : '-'
+			detailValue: selectedPet?.birthdate
+				? `${formatDateDMY(fromDateOnly(selectedPet.birthdate))} (${selectedPet.age})`
+				: '-'
 		},
 		{ detailName: 'Krankengeschichte', detailValue: selectedPet?.medicalHistory ?? '-' }
 	]);

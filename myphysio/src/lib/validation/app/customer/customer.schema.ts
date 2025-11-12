@@ -15,7 +15,7 @@ const additionalAddress = z.string().trim().max(100, 'Zu lang');
 const postalCode = z
 	.string()
 	.trim()
-	.refine((v) => v === '' || /^[0-9]{4,10}$/.test(v), 'Ungültige Postleizahl');
+	.refine((v) => /^[0-9]{4,10}$/.test(v), 'Ungültige Postleizahl');
 const city = z.string().trim().min(2, 'Mind. 2 Zeichen').max(100, 'Zu lang');
 const country = z.string().trim().min(2, 'Mind. 2 Zeichen').max(100, 'Zu lang');
 

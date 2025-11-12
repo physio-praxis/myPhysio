@@ -8,7 +8,10 @@ import type { Actions, PageServerLoad } from '../$types';
 import { createCustomer, saveConsentFile } from '$lib/server/db/repos/customerRepo';
 import { toStringMap } from '$lib/utils/formUtils';
 import { getErrorConstraint, isUniqueViolation } from '$lib/utils/exeptionUtils';
-import { uniqueCustomerEmail as uniqueCustomerEmailConstraint, uniqueCustomerPhone as uniqueCustomerPhoneConstraint } from '$lib/server/db/constants';
+import {
+	uniqueCustomerEmail as uniqueCustomerEmailConstraint,
+	uniqueCustomerPhone as uniqueCustomerPhoneConstraint
+} from '$lib/server/db/constants';
 
 export const load: PageServerLoad = async () => {
 	return { form: { values: {} as Record<string, string>, errors: {} as Record<string, string> } };
@@ -65,9 +68,16 @@ export const actions: Actions = {
 			if (isUniqueViolation(_err)) {
 				const constraint = getErrorConstraint(_err);
 				return fail(400, {
-					values: raw, errors: {
-						email: constraint === uniqueCustomerEmailConstraint ? 'Diese Email ist bereits vergeben. Bitte verwende eine andere.' : null,
-						phone: constraint === uniqueCustomerPhoneConstraint ? 'Diese Telefonnummer ist bereits vergeben. Bitte verwende eine andere.' : null
+					values: raw,
+					errors: {
+						email:
+							constraint === uniqueCustomerEmailConstraint
+								? 'Diese Email ist bereits vergeben. Bitte verwende eine andere.'
+								: null,
+						phone:
+							constraint === uniqueCustomerPhoneConstraint
+								? 'Diese Telefonnummer ist bereits vergeben. Bitte verwende eine andere.'
+								: null
 					}
 				});
 			}
