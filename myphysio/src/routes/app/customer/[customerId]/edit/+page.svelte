@@ -3,9 +3,11 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import Breadcrumb from '$lib/components/Breadcrumb.svelte';
+	import UnsavedChangesModal from '$lib/components/UnsavedChangesModal.svelte';
 	import type { CustomerDetails } from '$lib/types/customerTypes';
 	import type { FormType } from '$lib/types/formTypes';
 	import type { Crumb } from '$lib/types/navigationTypes';
+	import { useUnsavedChanges } from '$lib/utils/useUnsavedChanges.svelte';
 	import {
 		IdCard,
 		Mail,
@@ -36,8 +38,46 @@
 
 	let isPending = $state(false);
 	const unifiedForm = $derived(form ?? data.form ?? {});
-	const values = $derived(unifiedForm?.values ?? {});
 	const errors = $derived(unifiedForm?.errors ?? {});
+
+	const initialValues = {
+		firstName: customer.firstName ?? '',
+		lastName: customer.lastName ?? '',
+		email: customer.email ?? '',
+		phone: customer.phoneNumber ?? '',
+		street: customer.street ?? '',
+		additionalAddress: customer.additionalAddress ?? '',
+		city: customer.city ?? '',
+		postalCode: customer.postalCode ?? '',
+		country: customer.country ?? ''
+	};
+	let currentValues = $state({ ...initialValues });
+
+	// Sync currentValues with server response on validation errors
+	$effect(() => {
+		if (unifiedForm?.values && Object.keys(unifiedForm.values).length > 0) {
+			currentValues = {
+				firstName: unifiedForm.values.firstName ?? '',
+				lastName: unifiedForm.values.lastName ?? '',
+				email: unifiedForm.values.email ?? '',
+				phone: unifiedForm.values.phone ?? '',
+				street: unifiedForm.values.street ?? '',
+				additionalAddress: unifiedForm.values.additionalAddress ?? '',
+				city: unifiedForm.values.city ?? '',
+				postalCode: unifiedForm.values.postalCode ?? '',
+				country: unifiedForm.values.country ?? ''
+			};
+		}
+	});
+
+	const formHasChanged = $derived(
+		Object.entries(currentValues).some(([key, value]) => {
+			const initialValue = initialValues[key as keyof typeof initialValues];
+			return value !== initialValue;
+		})
+	);
+	const hasUnsavedChanges = $derived(formHasChanged && !isPending);
+	const unsavedChanges = useUnsavedChanges(() => hasUnsavedChanges);
 </script>
 
 <Breadcrumb items={breadCrumb} />
@@ -53,6 +93,7 @@
 			return async ({ result }) => {
 				isPending = false;
 				if (result.type === 'redirect') {
+					currentValues = { ...initialValues };
 					goto(resolve(result.location, {}), { replaceState: true });
 					return;
 				}
@@ -80,7 +121,10 @@
 				name="firstName"
 				placeholder="Vorname"
 				required
-				value={values.firstName ?? customer.firstName ?? ''}
+				value={currentValues.firstName}
+				oninput={(e) => {
+					currentValues.firstName = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.firstName)}
 				aria-describedby="err-firstName"
 			/>
@@ -100,7 +144,10 @@
 				name="lastName"
 				placeholder="Nachname"
 				required
-				value={values.lastName ?? customer.lastName ?? ''}
+				value={currentValues.lastName}
+				oninput={(e) => {
+					currentValues.lastName = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.lastName)}
 				aria-describedby="err-lastName"
 			/>
@@ -119,7 +166,10 @@
 				type="email"
 				name="email"
 				placeholder="E-mail"
-				value={values.email ?? customer.email ?? ''}
+				value={currentValues.email}
+				oninput={(e) => {
+					currentValues.email = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.email)}
 				aria-describedby="err-email"
 			/>
@@ -138,7 +188,10 @@
 				type="tel"
 				name="phone"
 				placeholder="Telefonnummer"
-				value={values.phone ?? customer.phoneNumber ?? ''}
+				value={currentValues.phone}
+				oninput={(e) => {
+					currentValues.phone = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.phone)}
 				aria-describedby="err-phone"
 			/>
@@ -157,7 +210,10 @@
 				type="text"
 				name="street"
 				placeholder="Straße und Hausnummer"
-				value={values.street ?? customer.street ?? ''}
+				value={currentValues.street}
+				oninput={(e) => {
+					currentValues.street = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.street)}
 				aria-describedby="err-street"
 			/>
@@ -176,7 +232,10 @@
 				type="text"
 				name="additionalAddress"
 				placeholder="Zusatz (Wohnung, Etage, etc..)"
-				value={values.additionalAddress ?? customer.additionalAddress ?? ''}
+				value={currentValues.additionalAddress}
+				oninput={(e) => {
+					currentValues.additionalAddress = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.additionalAddress)}
 				aria-describedby="err-additionalAddress"
 			/>
@@ -198,7 +257,10 @@
 					type="text"
 					name="city"
 					placeholder="Stadt"
-					value={values.city ?? customer.city ?? ''}
+					value={currentValues.city}
+					oninput={(e) => {
+						currentValues.city = e.currentTarget.value;
+					}}
 					aria-invalid={Boolean(errors.city)}
 					aria-describedby="err-city"
 				/>
@@ -212,7 +274,10 @@
 					type="text"
 					name="postalCode"
 					placeholder="PLZ"
-					value={values.postalCode ?? customer.postalCode ?? ''}
+					value={currentValues.postalCode}
+					oninput={(e) => {
+						currentValues.postalCode = e.currentTarget.value;
+					}}
 					aria-invalid={Boolean(errors.postalCode)}
 					aria-describedby="err-postalCode"
 				/>
@@ -243,7 +308,10 @@
 				type="text"
 				name="country"
 				placeholder="Land"
-				value={values.country ?? customer.country ?? ''}
+				value={currentValues.country}
+				oninput={(e) => {
+					currentValues.country = e.currentTarget.value;
+				}}
 				aria-invalid={Boolean(errors.country)}
 				aria-describedby="err-country"
 			/>
@@ -315,4 +383,9 @@
 			</button>
 		</div>
 	</form>
+	<UnsavedChangesModal
+		open={$unsavedChanges}
+		onConfirm={unsavedChanges.confirmLeave}
+		onCancel={unsavedChanges.cancelLeave}
+	/>
 </section>

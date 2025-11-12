@@ -401,6 +401,143 @@ This standardization ensures:
 - Easier maintenance and debugging
 - Consistent user experience
 
+### Unsaved Changes Protection
+
+**Status**: ✅ Completed (as of 2025-11-12)
+
+The application implements a reusable pattern to protect users from losing unsaved form data when navigating away from pages.
+
+**Implementation Components**:
+
+1. **Utility**: `src/lib/utils/useUnsavedChanges.svelte.ts`
+   - Store-based composable (returns Svelte store with custom methods)
+   - Intercepts SvelteKit navigation via `beforeNavigate`
+   - Intercepts browser navigation (tab close, refresh) via `beforeunload` event
+   - Returns a store extending `Readable<boolean>` with `confirmLeave()` and `cancelLeave()` methods
+   - Uses `goto()` to resume cancelled navigation after user confirmation
+   - Filters out `navigation.type === 'leave'` to prevent double dialogs on browser refresh
+
+2. **Modal Component**: `src/lib/components/UnsavedChangesModal.svelte`
+   - Reusable Skeleton UI Modal for confirmation dialog
+   - Uses `{#snippet content()}` pattern (Skeleton UI v3 requirement)
+   - Props: `open` (boolean), `onConfirm` (function), `onCancel` (function)
+   - German text: "Ungespeicherte Änderungen" with danger-styled "Verlassen" button
+   - Handles both explicit cancel and backdrop/ESC close via `onOpenChange`
+   - Positioned center screen with fade transitions
+
+**Usage Pattern**:
+
+```svelte
+<script lang="ts">
+	import { useUnsavedChanges } from '$lib/utils/useUnsavedChanges.svelte';
+	import UnsavedChangesModal from '$lib/components/UnsavedChangesModal.svelte';
+
+	// Define initial values (empty for add forms, loaded data for edit forms)
+	const initialValues = {
+		firstName: '',
+		lastName: '',
+		email: ''
+		// ... all form fields
+	};
+
+	// Track current form values
+	let currentValues = $state({ ...initialValues });
+
+	// Sync with server validation errors
+	$effect(() => {
+		if (unifiedForm?.values && Object.keys(unifiedForm.values).length > 0) {
+			currentValues = {
+				firstName: unifiedForm.values.firstName ?? '',
+				lastName: unifiedForm.values.lastName ?? ''
+				// ... all fields
+			};
+		}
+	});
+
+	// Check if form has actual changes from initial state
+	const formHasChanged = $derived(
+		Object.entries(currentValues).some(([key, value]) => {
+			const initialValue = initialValues[key as keyof typeof initialValues];
+			return value !== initialValue;
+		})
+	);
+
+	// Exclude changes during submission
+	const hasUnsavedChanges = $derived(formHasChanged && !isPending);
+
+	// Setup protection (returns a store)
+	const unsavedChanges = useUnsavedChanges(() => hasUnsavedChanges);
+</script>
+
+<form
+	use:enhance={() => {
+		isPending = true;
+		return async ({ result }) => {
+			isPending = false;
+			if (result.type === 'redirect') {
+				currentValues = { ...initialValues }; // Reset before navigation
+				goto(resolve(result.location, {}), { replaceState: true });
+				return;
+			}
+			await applyAction(result);
+		};
+	}}
+>
+	<!-- Each input needs oninput handler to update currentValues -->
+	<input
+		name="firstName"
+		value={currentValues.firstName}
+		oninput={(e) => {
+			currentValues.firstName = e.currentTarget.value;
+		}}
+	/>
+	<!-- ... other fields -->
+</form>
+
+<UnsavedChangesModal
+	open={$unsavedChanges}
+	onConfirm={unsavedChanges.confirmLeave}
+	onCancel={unsavedChanges.cancelLeave}
+/>
+```
+
+**Implementation Status**:
+
+- ✅ Utility and modal components created
+- ✅ `/app/customer/add` - Customer creation form (completed)
+- ✅ `/app/customer/[customerId]/edit` - Customer edit form (completed)
+
+**Pages that Don't Need Protection**:
+
+- `/app/customer` - Search/filter only (read-only)
+- `/app/customer/[customerId]` - Delete confirmation (not data entry)
+- `/auth/login` - Low priority (transient credentials)
+
+**Key Implementation Details**:
+
+- **Store-based reactivity**: Uses Svelte stores (`writable`) instead of `$state` runes for cross-component reactivity
+- **Actual change detection**: Compares current values against initial values, not just "form was touched"
+- **Per-field tracking**: Each input has `oninput` handler updating `currentValues` state
+- **Server sync**: `$effect` syncs `currentValues` when server returns validation errors
+- **Reset on success**: Must reset `currentValues = { ...initialValues }` before redirect to prevent false warning
+- **Exclude during submit**: Use `hasUnsavedChanges = formHasChanged && !isPending` to avoid warning during submission
+- **Browser navigation**: Shows browser's default dialog on refresh/close (cannot be customized for security)
+- **Internal navigation**: Shows custom modal for SvelteKit navigation (links, `goto()`)
+- **Navigation type filtering**: Ignores `navigation.type === 'leave'` to prevent modal showing after browser dialog
+- **Modal access**: Use `$unsavedChanges` (store auto-subscribe) for `open` prop, and `unsavedChanges.confirmLeave/cancelLeave` for handlers
+
+**Technical Notes**:
+
+- `$state` runes don't maintain reactivity when returned from utility functions
+- Svelte stores properly propagate reactivity across component boundaries
+- `useUnsavedChanges` returns a custom store interface: `Readable<boolean> & { confirmLeave, cancelLeave }`
+- The `allowNavigation` flag prevents re-triggering `beforeNavigate` when executing confirmed navigation
+
+**Future Enhancements** (optional):
+
+1. LocalStorage auto-save for draft recovery
+2. Apply to future forms (pet add/edit, treatment, invoice) when implemented
+
 ### Loading Application Metadata
 
 Application version and other build-time metadata from `package.json` can be loaded server-side using Node.js file system APIs:
