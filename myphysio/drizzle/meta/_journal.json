@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1758465626773,
-      "tag": "0000_little_toad_men",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1759591898180,
-      "tag": "0001_spooky_sleepwalker",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1759674075639,
-      "tag": "0002_green_quasimodo",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1759674260046,
-      "tag": "0003_fluffy_mad_thinker",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1759675422079,
-      "tag": "0004_hot_redwing",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1759774022380,
-      "tag": "0005_third_alice",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1760021780943,
-      "tag": "0006_spotty_jimmy_woo",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1760192321985,
-      "tag": "0007_fresh_darkstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1762708270794,
-      "tag": "0008_chilly_the_santerians",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1762712299063,
-      "tag": "0009_shiny_multiple_man",
+      "when": 1762979950119,
+      "tag": "0000_flaky_madelyne_pryor",
       "breakpoints": true
     }
   ]

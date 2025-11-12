@@ -18,7 +18,7 @@ import {
 /** Auth User */
 export const authUser = pgTable('auth_user', {
 	id: text('id').primaryKey(),
-	email: text('email').unique(),
+	email: text('email').notNull().unique(),
 	supabaseUserId: uuid('supabase_user_id').unique()
 });
 export type InsertAuthUser = InferInsertModel<typeof authUser>;
@@ -316,7 +316,7 @@ export const customerDetailsView = pgView('customer_details_view')
 									'species', s.name,
 									'breed', p.breed,
 									'birthdate', p.birthdate::text,
-									'age', DATE_PART('YEAR',AGE(p.birthdate),
+									'age', DATE_PART('YEAR',AGE(p.birthdate)),
 									'medicalHistory', p.medical_history
 								)
 								ORDER BY p.created_at DESC, p.pet_id
