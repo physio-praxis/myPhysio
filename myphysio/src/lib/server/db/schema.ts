@@ -18,7 +18,7 @@ import {
 /** Auth User */
 export const authUser = pgTable('auth_user', {
 	id: text('id').primaryKey(),
-	email: text('email'),
+	email: text('email').unique(),
 	supabaseUserId: uuid('supabase_user_id').unique()
 });
 export type InsertAuthUser = InferInsertModel<typeof authUser>;
@@ -42,15 +42,15 @@ export const customer = pgTable(
 	{
 		customerId: serial('customer_id').primaryKey(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
-		firstName: text('first_name'),
-		lastName: text('last_name'),
-		email: text('email'),
-		phoneNumber: text('phone_number'),
-		street: text('street'),
+		firstName: text('first_name').notNull(),
+		lastName: text('last_name').notNull(),
+		email: text('email').notNull().unique(),
+		phoneNumber: text('phone_number').notNull().unique(),
+		street: text('street').notNull(),
 		additionalAddress: text('additional_address'),
-		postalCode: text('postalCode'),
-		city: text('city'),
-		country: text('country')
+		postalCode: text('postalCode').notNull(),
+		city: text('city').notNull(),
+		country: text('country').notNull()
 	},
 	(t) => ({
 		ixCustomerCreatedId: index('ix_customer_created_id').on(t.createdAt, t.customerId),
@@ -70,6 +70,7 @@ export const customerConsent = pgTable('customer_consent', {
 	id: serial('id').primaryKey(),
 	customerId: integer('customer_id')
 		.notNull()
+		.unique()
 		.references(() => customer.customerId, { onDelete: 'cascade' }),
 	storageBucket: text('storage_bucket').notNull(),
 	storageKey: text('storage_key').notNull(),
@@ -89,7 +90,7 @@ export const species = pgTable(
 	{
 		speciesId: serial('species_id').primaryKey(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
-		name: text('name')
+		name: text('name').unique().notNull()
 	},
 	(t) => ({
 		ixSpeciesName: index('ix_species_name').on(t.name)
@@ -104,10 +105,10 @@ export const pet = pgTable(
 	{
 		petId: serial('pet_id').primaryKey(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
-		name: text('name'),
+		name: text('name').notNull(),
 		speciesId: integer('species_id').references(() => species.speciesId, { onDelete: 'set null' }),
-		breed: text('breed'),
-		age: date('age', { mode: 'date' }),
+		breed: text('breed').notNull(),
+		birthdate: date('birthdate', { mode: 'date' }),
 		medicalHistory: text('medical_history'),
 		customerId: integer('customer_id').references(() => customer.customerId, {
 			onDelete: 'cascade'
@@ -149,7 +150,7 @@ export type InsertInvoice = InferInsertModel<typeof invoice>;
 export const treatment = pgTable('treatment', {
 	treatmentId: serial('treatment_id').primaryKey(),
 	name: varchar('name', { length: 200 }).notNull(),
-	description: text('description'),
+	description: text('description').notNull(),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow()
 });
 export type InsertTreatment = InferInsertModel<typeof treatment>;
@@ -300,6 +301,7 @@ export const customerDetailsView = pgView('customer_details_view')
 						speciesId: number | null;
 						species: string | null;
 						breed: string | null;
+						birthdate: string | null;
 						age: string | null;
 						medicalHistory: string | null;
 					}>
@@ -313,7 +315,8 @@ export const customerDetailsView = pgView('customer_details_view')
 									'speciesId', p.species_id,
 									'species', s.name,
 									'breed', p.breed,
-									'age', p.age::text,
+									'birthdate', p.birthdate::text,
+									'age', DATE_PART('YEAR',AGE(p.birthdate),
 									'medicalHistory', p.medical_history
 								)
 								ORDER BY p.created_at DESC, p.pet_id

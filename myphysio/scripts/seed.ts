@@ -216,7 +216,7 @@ async function SeedPets(
 				name: faker.animal.petName(),
 				speciesId: spec.speciesId,
 				breed: `${faker.word.adjective()} ${faker.word.noun()}`,
-				age: faker.date.between({ from: '2010-01-01', to: new Date() }),
+				birthdate: faker.date.between({ from: '2010-01-01', to: new Date() }),
 				medicalHistory:
 					faker.helpers.maybe(() => faker.lorem.sentence({ min: 1, max: 3 }), {
 						probability: 0.4

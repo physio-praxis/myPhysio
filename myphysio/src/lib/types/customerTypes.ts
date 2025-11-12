@@ -27,6 +27,7 @@ export type CustomerPet = {
 	speciesId: number | null;
 	species: string | null;
 	breed: string | null;
+	birthdate: string | null;
 	age: string | null;
 	medicalHistory: string | null;
 };
