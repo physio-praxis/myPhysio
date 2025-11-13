@@ -27,10 +27,10 @@ export async function ensureAuthUser(user: InsertAuthUser) {
 		.insert(authUser)
 		.values({
 			id: user.id,
-			email: user.email ?? null,
+			email: user.email,
 			supabaseUserId: user.id as unknown as string
 		})
-		.onConflictDoUpdate({ target: authUser.id, set: { email: user.email ?? null } });
+		.onConflictDoUpdate({ target: authUser.id, set: { email: user.email } });
 }
 
 export async function createSessionForUserId(
