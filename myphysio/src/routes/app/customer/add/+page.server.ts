@@ -7,6 +7,11 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from '../$types';
 import { createCustomer, saveConsentFile } from '$lib/server/db/repos/customerRepo';
 import { toStringMap } from '$lib/utils/formUtils';
+import { getErrorConstraint, isUniqueViolation } from '$lib/utils/exeptionUtils';
+import {
+	uniqueCustomerEmail as uniqueCustomerEmailConstraint,
+	uniqueCustomerPhone as uniqueCustomerPhoneConstraint
+} from '$lib/server/db/constants';
 
 export const load: PageServerLoad = async () => {
 	return { form: { values: {} as Record<string, string>, errors: {} as Record<string, string> } };
@@ -48,18 +53,34 @@ export const actions: Actions = {
 			created = await createCustomer({
 				firstName: input.firstName,
 				lastName: input.lastName,
-				email: input.email || null,
-				phoneNumber: input.phone || null,
-				street: input.street || null,
+				email: input.email,
+				phoneNumber: input.phone,
+				street: input.street,
 				additionalAddress: input.additionalAddress || null,
-				postalCode: input.postalCode || null,
-				city: input.city || null,
-				country: input.country || null
+				postalCode: input.postalCode,
+				city: input.city,
+				country: input.country
 			});
 			if (consentFile) {
 				await saveConsentFile({ customerId: created.customerId, file: consentFile });
 			}
 		} catch (_err: unknown) {
+			if (isUniqueViolation(_err)) {
+				const constraint = getErrorConstraint(_err);
+				return fail(400, {
+					values: raw,
+					errors: {
+						email:
+							constraint === uniqueCustomerEmailConstraint
+								? 'Diese Email ist bereits vergeben. Bitte verwende eine andere.'
+								: null,
+						phone:
+							constraint === uniqueCustomerPhoneConstraint
+								? 'Diese Telefonnummer ist bereits vergeben. Bitte verwende eine andere.'
+								: null
+					}
+				});
+			}
 			console.error(_err);
 			return fail(500, {
 				values: raw,

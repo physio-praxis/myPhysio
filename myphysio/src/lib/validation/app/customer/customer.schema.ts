@@ -15,20 +15,20 @@ const additionalAddress = z.string().trim().max(100, 'Zu lang');
 const postalCode = z
 	.string()
 	.trim()
-	.refine((v) => v === '' || /^[0-9]{4,10}$/.test(v), 'Ungültige Postleizahl');
+	.refine((v) => /^[0-9]{4,10}$/.test(v), 'Ungültige Postleizahl');
 const city = z.string().trim().min(2, 'Mind. 2 Zeichen').max(100, 'Zu lang');
 const country = z.string().trim().min(2, 'Mind. 2 Zeichen').max(100, 'Zu lang');
 
 export const CustomerSchema = z.object({
 	firstName: name,
 	lastName: name,
-	email: email.optional().or(z.literal('')),
-	phone: phone.optional().or(z.literal('')),
-	street: street.optional().or(z.literal('')),
+	email: email,
+	phone: phone,
+	street: street,
 	additionalAddress: additionalAddress.optional().or(z.literal('')),
-	postalCode: postalCode.optional().or(z.literal('')),
-	city: city.optional().or(z.literal('')),
-	country: country.optional().or(z.literal(''))
+	postalCode: postalCode,
+	city: city,
+	country: country
 });
 
 export type CustomerInput = z.infer<typeof CustomerSchema>;

@@ -27,6 +27,7 @@ export type CustomerPet = {
 	speciesId: number | null;
 	species: string | null;
 	breed: string | null;
+	birthdate: string | null;
 	age: string | null;
 	medicalHistory: string | null;
 };
@@ -66,11 +67,11 @@ export type UpdateCustomerInput = {
 	customerId: number;
 	firstName: string;
 	lastName: string;
-	email?: string | null;
-	phoneNumber?: string | null;
-	street: string | null;
+	email: string;
+	phoneNumber: string;
+	street: string;
 	additionalAddress: string | null;
-	postalCode: string | null;
-	city: string | null;
-	country: string | null;
+	postalCode: string;
+	city: string;
+	country: string;
 };
