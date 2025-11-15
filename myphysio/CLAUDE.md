@@ -540,6 +540,8 @@ The application implements a reusable pattern to protect users from losing unsav
 
 ### Custom Error Pages
 
+**Status**: ✅ Completed (as of 2025-11-15)
+
 The application has custom error pages (`src/routes/+error.svelte`) for 404 and 500 errors with veterinary-themed quotes and images.
 
 **Implementation Pattern**:
@@ -549,6 +551,10 @@ const errors404 = [
 	{
 		quote: 'Sitz, Platz... Seite? - Leider nicht gefunden.',
 		image: '/images/error/404-1.jpg'
+	},
+	{
+		quote: 'Diese Seite hat sich versteckt - auch unser bester Spürhund findet sie nicht.',
+		image: '/images/error/404-2.jpg'
 	}
 	// ... more error objects
 ];
@@ -557,6 +563,10 @@ const errors500 = [
 	{
 		quote: 'Wuff... hier ist was schiefgelaufen. Unser Server hat wohl den Ball nicht gefangen.',
 		image: '/images/error/500-1.jpg'
+	},
+	{
+		quote: 'Autsch! Unser System hat sich das Pfötchen verletzt. Wir kümmern uns darum!',
+		image: '/images/error/500-2.jpg'
 	}
 	// ... more error objects
 ];
