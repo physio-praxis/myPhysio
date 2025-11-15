@@ -282,21 +282,21 @@
 					aria-describedby="err-postalCode"
 				/>
 			</div>
-			{#if errors.city || errors.postalCode}
-				<div class="grid w-full max-w-lg grid-cols-[2fr_1fr] gap-2">
-					{#if errors.city}
-						<p id="err-city" class="text-xs text-red-600">
-							{errors.city}
-						</p>
-					{/if}
-					{#if errors.postalCode}
-						<p id="err-postalCode" class="text-xs text-red-600">
-							{errors.postalCode}
-						</p>
-					{/if}
-				</div>
-			{/if}
 		</div>
+		{#if errors.city || errors.postalCode}
+			<div class="flex w-full max-w-lg">
+				{#if errors.city}
+					<p id="err-city" class="w-full text-xs text-red-600">
+						{errors.city}
+					</p>
+				{/if}
+				{#if errors.postalCode}
+					<p id="err-postalCode" class="w-full text-right text-xs text-red-600">
+						{errors.postalCode}
+					</p>
+				{/if}
+			</div>
+		{/if}
 
 		<!-- Country -->
 		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">

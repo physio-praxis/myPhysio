@@ -537,6 +537,43 @@ The application implements a reusable pattern to protect users from losing unsav
 
 1. LocalStorage auto-save for draft recovery
 2. Apply to future forms (pet add/edit, treatment, invoice) when implemented
+### Custom Error Pages
+
+The application has custom error pages (`src/routes/+error.svelte`) for 404 and 500 errors with veterinary-themed quotes and images.
+
+**Implementation Pattern**:
+
+```typescript
+const errors404 = [
+	{
+		quote: 'Sitz, Platz... Seite? - Leider nicht gefunden.',
+		image: '/images/error/404-1.jpg'
+	}
+	// ... more error objects
+];
+
+const errors500 = [
+	{
+		quote: 'Wuff... hier ist was schiefgelaufen. Unser Server hat wohl den Ball nicht gefangen.',
+		image: '/images/error/500-1.jpg'
+	}
+	// ... more error objects
+];
+
+const errorIs404 = page.status === 404;
+const array = errorIs404 ? errors404 : errors500;
+const index = Math.floor(Math.random() * array.length);
+
+let selectedError = $state(array[index]);
+```
+
+**Key Points**:
+
+- Quote and image are stored together in objects to ensure they're always paired correctly
+- Random selection happens once at component initialization using `$state`
+- Images are stored in `static/images/error/` directory
+- 404 errors show "Zurück zur Startseite" button linking to `/app`
+- 500 errors show "Problem melden" button linking to GitHub issues
 
 ### Loading Application Metadata
 
