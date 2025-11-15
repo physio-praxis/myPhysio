@@ -537,6 +537,7 @@ The application implements a reusable pattern to protect users from losing unsav
 
 1. LocalStorage auto-save for draft recovery
 2. Apply to future forms (pet add/edit, treatment, invoice) when implemented
+
 ### Custom Error Pages
 
 The application has custom error pages (`src/routes/+error.svelte`) for 404 and 500 errors with veterinary-themed quotes and images.
