@@ -1,10 +1,11 @@
 import { db } from '$lib/server/db/db.js';
 import { deleteCustomer } from '$lib/server/db/repos/customerRepo';
 import { customerDetailsView } from '$lib/server/db/schema.js';
+import { generateBreadcrumbs } from '$lib/utils/breadcrumbUtils';
 import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 
-export async function load({ params }) {
+export async function load({ params, url }) {
 	const id = Number(params.customerId);
 	if (isNaN(id)) throw error(400, 'Invalid customer Id');
 
@@ -15,14 +16,13 @@ export async function load({ params }) {
 		.limit(1);
 
 	if (!customer) throw error(404, 'Customer not found');
-	const breadcrumbTitle = `${customer.firstName || ''} ${customer.lastName || ''}`;
+	const breadCrumb = generateBreadcrumbs(url.pathname, {
+		[params.customerId]: `${customer.firstName || ''} ${customer.lastName || ''}`
+	});
 
 	return {
 		customer,
-		breadCrumb: [
-			{ href: '/app/customer', label: 'Kunde' },
-			{ href: `/app/customer/${customer.customerId}`, label: breadcrumbTitle }
-		]
+		breadCrumb
 	};
 }
 

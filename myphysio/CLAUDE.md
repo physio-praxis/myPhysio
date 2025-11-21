@@ -198,6 +198,63 @@ import {resolve} from '$app/paths';
 
 This is required to pass ESLint's `svelte/no-navigation-without-resolve` rule. `Navigation.Tile` components handle this automatically via their `href` prop.
 
+### Breadcrumb Navigation
+
+The application uses an automated breadcrumb system that generates navigation breadcrumbs based on URL paths.
+
+**Utility Function** (`src/lib/utils/breadcrumbUtils.ts`):
+
+```typescript
+generateBreadcrumbs(pathname: string, customLabels?: Record<string, string>): Crumb[]
+```
+
+- Automatically generates breadcrumbs from URL pathname
+- Removes `/app` prefix from display
+- Supports custom labels for dynamic segments (e.g., customer names)
+- Uses default German labels for common segments (`customer` → `Kunde`, `add` → `Hinzufügen`, `edit` → `Bearbeiten`)
+
+**Usage Pattern - Server Side** (preferred for pages with data):
+
+```typescript
+// In +page.server.ts
+import { generateBreadcrumbs } from '$lib/utils/breadcrumbUtils';
+
+export const load: PageServerLoad = async ({ params, url }) => {
+	// For static routes
+	const breadCrumb = generateBreadcrumbs(url.pathname);
+
+	// For dynamic routes with custom labels
+	const breadCrumb = generateBreadcrumbs(url.pathname, {
+		[params.customerId]: `${customer.firstName} ${customer.lastName}`
+	});
+
+	return { breadCrumb, /* other data */ };
+};
+```
+
+**Display in Component**:
+
+```svelte
+<script>
+	const { data } = $props();
+</script>
+
+<Breadcrumb items={data.breadCrumb} />
+```
+
+**Examples**:
+- `/app/customer` → `Kunde`
+- `/app/customer/add` → `Kunde / Neuen Kunden hinzufügen`
+- `/app/customer/123` → `Kunde / Max Mustermann` (when customer name provided via customLabels)
+- `/app/customer/123/edit` → `Kunde / Max Mustermann / Bearbeiten`
+
+**Key Points**:
+- Always use server-side generation in `+page.server.ts` load functions
+- Pass `url` parameter to load function to access `url.pathname`
+- Use `customLabels` parameter to replace dynamic segments (IDs) with meaningful labels (names)
+- The last breadcrumb item is automatically rendered as non-clickable (current page)
+- All breadcrumb links use `resolve()` for proper URL resolution
+
 ### Responsive Design
 
 The app uses **CSS-only responsive design** with Tailwind's breakpoint classes instead of JavaScript-based breakpoint detection:

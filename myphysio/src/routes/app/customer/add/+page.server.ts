@@ -12,9 +12,16 @@ import {
 	uniqueCustomerEmail as uniqueCustomerEmailConstraint,
 	uniqueCustomerPhone as uniqueCustomerPhoneConstraint
 } from '$lib/server/db/constants';
+import { generateBreadcrumbs } from '$lib/utils/breadcrumbUtils';
 
-export const load: PageServerLoad = async () => {
-	return { form: { values: {} as Record<string, string>, errors: {} as Record<string, string> } };
+export const load: PageServerLoad = async ({ url }) => {
+	const breadCrumb = generateBreadcrumbs(url.pathname, {
+		add: 'Neuen Kunden hinzufügen'
+	});
+	return {
+		breadCrumb,
+		form: { values: {} as Record<string, string>, errors: {} as Record<string, string> }
+	};
 };
 
 export const actions: Actions = {
