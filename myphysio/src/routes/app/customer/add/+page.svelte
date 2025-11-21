@@ -64,14 +64,9 @@
 			};
 		}
 	});
-
-	let crumbs = [
-		{ href: '/app/customer', label: 'Kunde' },
-		{ href: '/app/customer/add', label: 'Neuen Kunden hinzufügen' }
-	];
 </script>
 
-<Breadcrumb items={crumbs} />
+<Breadcrumb items={data.breadCrumb} />
 <section class="flex flex-col space-y-6">
 	<h3 class="text-center h3">Neue Kunde</h3>
 	<form

@@ -11,8 +11,9 @@ import {
 	uniqueCustomerPhone as uniqueCustomerPhoneConstraint
 } from '$lib/server/db/constants';
 import { getErrorConstraint, isUniqueViolation } from '$lib/utils/exeptionUtils';
+import { generateBreadcrumbs } from '$lib/utils/breadcrumbUtils';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const customerId = parseInt(params.customerId);
 
 	if (isNaN(customerId)) {
@@ -39,11 +40,9 @@ export const load: PageServerLoad = async ({ params }) => {
 		consentUploadedAt: latestConsent?.uploadedAt.toISOString() || null
 	};
 
-	const breadCrumb = [
-		{ label: 'Kunden', href: '/app/customer' },
-		{ label: `${cus.firstName} ${cus.lastName}`, href: `/app/customer/${customerId}` },
-		{ label: 'Bearbeiten', href: `/app/customer/${customerId}/edit` }
-	];
+	const breadCrumb = generateBreadcrumbs(url.pathname, {
+		[params.customerId]: `${cus.firstName} ${cus.lastName}`
+	});
 
 	return {
 		customer: customerWithConsent,
