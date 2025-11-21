@@ -1,0 +1,89 @@
+import { db } from '$lib/server/db/db';
+import { customerSearchView } from '$lib/server/db/schema';
+import type { CustomerSearchResponse } from '$lib/types/customerTypes';
+import { decodeCursor, encodeCursor } from '$lib/utils/cursor';
+import { customerSearchQuerySchema } from '$lib/validation/app/customer/customerSearch.schema';
+import { error, type RequestHandler } from '@sveltejs/kit';
+import { desc, SQL, sql } from 'drizzle-orm';
+
+export const GET: RequestHandler = async ({ url }) => {
+	const parsed = customerSearchQuerySchema.safeParse(Object.fromEntries(url.searchParams));
+	if (!parsed.success) {
+		throw error(400, { message: `Invalid query, error: ${parsed.error.flatten()}` });
+	}
+
+	const { query: queryInput, limit: limitStr, cursor } = parsed.data;
+	const limit = Number(limitStr);
+	const query = queryInput.trim() ?? '';
+	const queryLike = `%${query}%`;
+
+	let cursorClause = sql`TRUE`;
+	if (cursor) {
+		const c = decodeCursor(cursor);
+		// Get rows where (created_at, customer_id) comes before the given (created_at, id) pair for pagaination
+		cursorClause = sql`(${customerSearchView.createdAt}, ${customerSearchView.customerId}) < (${c.createdAt}, ${c.id})`;
+	}
+
+	const whereClause = query.length > 0 ? buildILikeQuery(queryLike, cursorClause) : cursorClause;
+
+	const rows = await db
+		.select({
+			customerId: customerSearchView.customerId,
+			createdAt: customerSearchView.createdAt,
+			firstName: customerSearchView.firstName,
+			lastName: customerSearchView.lastName,
+			email: customerSearchView.email,
+			phoneNumber: customerSearchView.phoneNumber,
+			street: customerSearchView.street,
+			additionalAddress: customerSearchView.additionalAddress,
+			postalCode: customerSearchView.postalCode,
+			city: customerSearchView.city,
+			country: customerSearchView.country,
+			petsLine: customerSearchView.petsLine,
+			hasConsent: customerSearchView.hasConsent
+		})
+		.from(customerSearchView)
+		.where(whereClause)
+		.orderBy(desc(customerSearchView.createdAt), desc(customerSearchView.customerId))
+		.limit(limit + 1); // fetch one more to indicate there are more results without using COUNT
+
+	const hasMoreRows = rows.length > limit;
+	const page = hasMoreRows ? rows.slice(0, limit) : rows;
+
+	const items = page.map((c) => ({
+		customer: {
+			customerId: c.customerId,
+			createdAt: c.createdAt,
+			firstName: c.firstName,
+			lastName: c.lastName,
+			email: c.email,
+			phoneNumber: c.phoneNumber,
+			street: c.street,
+			additionalAddress: c.additionalAddress,
+			postalCode: c.postalCode,
+			city: c.city,
+			country: c.country
+		},
+		petsLine: c.petsLine,
+		badges: { hasConcent: c.hasConsent }
+	}));
+
+	const lastRow = page.at(-1);
+	const nextCursor =
+		hasMoreRows && lastRow ? encodeCursor(lastRow.customerId, lastRow.createdAt) : undefined;
+
+	const payload: CustomerSearchResponse = { items, nextCursor };
+	return new Response(JSON.stringify(payload), { status: 200 });
+};
+
+function buildILikeQuery(query: string, cursorClause: SQL<unknown>) {
+	return sql`(
+        ${customerSearchView.firstName} ILIKE ${query}
+        OR ${customerSearchView.lastName} ILIKE ${query}
+        OR ${customerSearchView.email} ILIKE ${query}
+        OR ${customerSearchView.phoneNumber} ILIKE ${query}
+        OR ${customerSearchView.city} ILIKE ${query}
+        OR ${customerSearchView.postalCode} ILIKE ${query}
+        OR ${customerSearchView.petsText} ILIKE ${query}
+    ) AND ${cursorClause}`;
+}

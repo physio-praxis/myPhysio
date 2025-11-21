@@ -1,0 +1,391 @@
+<script lang="ts">
+	import { applyAction, enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import Breadcrumb from '$lib/components/Breadcrumb.svelte';
+	import UnsavedChangesModal from '$lib/components/UnsavedChangesModal.svelte';
+	import type { CustomerDetails } from '$lib/types/customerTypes';
+	import type { FormType } from '$lib/types/formTypes';
+	import type { Crumb } from '$lib/types/navigationTypes';
+	import { useUnsavedChanges } from '$lib/utils/useUnsavedChanges.svelte';
+	import {
+		IdCard,
+		Mail,
+		Phone,
+		LoaderCircle,
+		Save,
+		FileUp,
+		Paperclip,
+		CircleX,
+		CircleCheck,
+		Route,
+		MapPinPlus,
+		Mailbox,
+		Building2,
+		Earth
+	} from '@lucide/svelte';
+	import { FileUpload } from '@skeletonlabs/skeleton-svelte';
+
+	interface Data {
+		customer: CustomerDetails;
+		breadCrumb: Crumb[];
+		form: FormType;
+	}
+
+	let { data, form }: { data: Data; form?: FormType } = $props();
+	let customer = data.customer;
+	let breadCrumb = data.breadCrumb;
+
+	let isPending = $state(false);
+	const unifiedForm = $derived(form ?? data.form ?? {});
+	const errors = $derived(unifiedForm?.errors ?? {});
+
+	const initialValues = {
+		firstName: customer.firstName ?? '',
+		lastName: customer.lastName ?? '',
+		email: customer.email ?? '',
+		phone: customer.phoneNumber ?? '',
+		street: customer.street ?? '',
+		additionalAddress: customer.additionalAddress ?? '',
+		city: customer.city ?? '',
+		postalCode: customer.postalCode ?? '',
+		country: customer.country ?? ''
+	};
+	let currentValues = $state({ ...initialValues });
+
+	// Sync currentValues with server response on validation errors
+	$effect(() => {
+		if (unifiedForm?.values && Object.keys(unifiedForm.values).length > 0) {
+			currentValues = {
+				firstName: unifiedForm.values.firstName ?? '',
+				lastName: unifiedForm.values.lastName ?? '',
+				email: unifiedForm.values.email ?? '',
+				phone: unifiedForm.values.phone ?? '',
+				street: unifiedForm.values.street ?? '',
+				additionalAddress: unifiedForm.values.additionalAddress ?? '',
+				city: unifiedForm.values.city ?? '',
+				postalCode: unifiedForm.values.postalCode ?? '',
+				country: unifiedForm.values.country ?? ''
+			};
+		}
+	});
+
+	const formHasChanged = $derived(
+		Object.entries(currentValues).some(([key, value]) => {
+			const initialValue = initialValues[key as keyof typeof initialValues];
+			return value !== initialValue;
+		})
+	);
+	const hasUnsavedChanges = $derived(formHasChanged && !isPending);
+	const unsavedChanges = useUnsavedChanges(() => hasUnsavedChanges);
+</script>
+
+<Breadcrumb items={breadCrumb} />
+<section class="flex flex-col space-y-6">
+	<h3 class="text-center h3">Kunden bearbeiten</h3>
+
+	<form
+		method="POST"
+		enctype="multipart/form-data"
+		class="flex flex-col items-center space-y-4"
+		use:enhance={() => {
+			isPending = true;
+			return async ({ result }) => {
+				isPending = false;
+				if (result.type === 'redirect') {
+					currentValues = { ...initialValues };
+					goto(resolve(result.location, {}), { replaceState: true });
+					return;
+				}
+				await applyAction(result);
+			};
+		}}
+	>
+		<!-- Global Error -->
+		{#if errors._global}
+			<div
+				class="w-full max-w-lg rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700"
+			>
+				{errors._global}
+			</div>
+		{/if}
+
+		<!-- firstName -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<IdCard />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="firstName"
+				placeholder="Vorname"
+				required
+				value={currentValues.firstName}
+				oninput={(e) => {
+					currentValues.firstName = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.firstName)}
+				aria-describedby="err-firstName"
+			/>
+		</div>
+		{#if errors.firstName}
+			<p id="err-firstName" class="w-full max-w-lg text-xs text-red-600">{errors.firstName}</p>
+		{/if}
+
+		<!-- lastName -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<IdCard />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="lastName"
+				placeholder="Nachname"
+				required
+				value={currentValues.lastName}
+				oninput={(e) => {
+					currentValues.lastName = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.lastName)}
+				aria-describedby="err-lastName"
+			/>
+		</div>
+		{#if errors.lastName}
+			<p id="err-lastName" class="w-full max-w-lg text-xs text-red-600">{errors.lastName}</p>
+		{/if}
+
+		<!-- Email -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<Mail />
+			</div>
+			<input
+				class="ig-input"
+				type="email"
+				name="email"
+				placeholder="E-mail"
+				value={currentValues.email}
+				oninput={(e) => {
+					currentValues.email = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.email)}
+				aria-describedby="err-email"
+			/>
+		</div>
+		{#if errors.email}
+			<p id="err-email" class="w-full max-w-lg text-xs text-red-600">{errors.email}</p>
+		{/if}
+
+		<!-- Phone Number -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<Phone />
+			</div>
+			<input
+				class="ig-input"
+				type="tel"
+				name="phone"
+				placeholder="Telefonnummer"
+				value={currentValues.phone}
+				oninput={(e) => {
+					currentValues.phone = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.phone)}
+				aria-describedby="err-phone"
+			/>
+		</div>
+		{#if errors.phone}
+			<p id="err-phone" class="w-full max-w-lg text-xs text-red-600">{errors.phone}</p>
+		{/if}
+
+		<!-- Street -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<Route />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="street"
+				placeholder="Straße und Hausnummer"
+				value={currentValues.street}
+				oninput={(e) => {
+					currentValues.street = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.street)}
+				aria-describedby="err-street"
+			/>
+		</div>
+		{#if errors.street}
+			<p id="err-street" class="w-full max-w-lg text-xs text-red-600">{errors.street}</p>
+		{/if}
+
+		<!-- Additional Address -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<MapPinPlus />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="additionalAddress"
+				placeholder="Zusatz (Wohnung, Etage, etc..)"
+				value={currentValues.additionalAddress}
+				oninput={(e) => {
+					currentValues.additionalAddress = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.additionalAddress)}
+				aria-describedby="err-additionalAddress"
+			/>
+		</div>
+		{#if errors.additionalAddress}
+			<p id="err-additionalAddress" class="w-full max-w-lg text-xs text-red-600">
+				{errors.additionalAddress}
+			</p>
+		{/if}
+
+		<!-- City and Postal Code -->
+		<div class="grid w-full max-w-lg grid-cols-[2fr_1fr] gap-2">
+			<div class="input-group grid-cols-[auto_1fr]">
+				<div class="ig-cell preset-tonal">
+					<Building2 />
+				</div>
+				<input
+					class="ig-input"
+					type="text"
+					name="city"
+					placeholder="Stadt"
+					value={currentValues.city}
+					oninput={(e) => {
+						currentValues.city = e.currentTarget.value;
+					}}
+					aria-invalid={Boolean(errors.city)}
+					aria-describedby="err-city"
+				/>
+			</div>
+			<div class="input-group grid-cols-[1fr] md:grid-cols-[auto_1fr]">
+				<div class="ig-cell hidden preset-tonal md:flex md:items-center md:justify-center">
+					<Mailbox />
+				</div>
+				<input
+					class="ig-input"
+					type="text"
+					name="postalCode"
+					placeholder="PLZ"
+					value={currentValues.postalCode}
+					oninput={(e) => {
+						currentValues.postalCode = e.currentTarget.value;
+					}}
+					aria-invalid={Boolean(errors.postalCode)}
+					aria-describedby="err-postalCode"
+				/>
+			</div>
+		</div>
+		{#if errors.city || errors.postalCode}
+			<div class="flex w-full max-w-lg">
+				{#if errors.city}
+					<p id="err-city" class="w-full text-xs text-red-600">
+						{errors.city}
+					</p>
+				{/if}
+				{#if errors.postalCode}
+					<p id="err-postalCode" class="w-full text-right text-xs text-red-600">
+						{errors.postalCode}
+					</p>
+				{/if}
+			</div>
+		{/if}
+
+		<!-- Country -->
+		<div class="input-group w-full max-w-lg grid-cols-[auto_1fr]">
+			<div class="ig-cell preset-tonal">
+				<Earth />
+			</div>
+			<input
+				class="ig-input"
+				type="text"
+				name="country"
+				placeholder="Land"
+				value={currentValues.country}
+				oninput={(e) => {
+					currentValues.country = e.currentTarget.value;
+				}}
+				aria-invalid={Boolean(errors.country)}
+				aria-describedby="err-country"
+			/>
+		</div>
+		{#if errors.country}
+			<p id="err-country" class="w-full max-w-lg text-xs text-red-600">{errors.country}</p>
+		{/if}
+
+		<!-- Current Consent File Info -->
+		{#if customer.hasConsent}
+			<div class="w-full max-w-lg rounded-lg border border-success-300 bg-success-50 p-3">
+				<div class="flex items-center space-x-2 text-sm text-success-700">
+					<CircleCheck class="size-4" />
+					<span>
+						Aktuelle Einwilligungsdatei: <strong>{customer.consentFilename}</strong>
+					</span>
+				</div>
+				{#if customer.consentUploadedAt}
+					<p class="ml-6 text-xs text-success-600">
+						Hochgeladen am: {new Date(customer.consentUploadedAt).toLocaleDateString('de-DE')}
+					</p>
+				{/if}
+			</div>
+		{/if}
+
+		<!-- Consent File Upload (Optional) -->
+		<div class="w-full max-w-lg">
+			<FileUpload
+				name="consentFile"
+				maxFiles={1}
+				subtext={customer.hasConsent
+					? 'Neue Datei hochladen, um die aktuelle zu ersetzen (optional).'
+					: 'DSGVO-Datei anhängen (optional).'}
+				classes="w-full"
+				label="DSGVO Datei Upload"
+				allowDrop
+				invalid={Boolean(errors.consentFile)}
+			>
+				{#snippet iconInterface()}<FileUp class="size-8" />{/snippet}
+				{#snippet iconFile()}<Paperclip class="size-4" />{/snippet}
+				{#snippet iconFileRemove()}<CircleX class="size-4" />{/snippet}
+			</FileUpload>
+		</div>
+		{#if errors.consentFile}
+			<p id="err-consentFile" class="w-full max-w-lg text-xs text-red-600">
+				{errors.consentFile}
+			</p>
+		{/if}
+
+		<!-- Action Buttons -->
+		<div class="flex w-full max-w-lg justify-end space-x-2">
+			<a
+				href={resolve(`/app/customer/${customer.customerId}`, {})}
+				class="btn preset-filled-error-500"
+			>
+				Abbrechen
+			</a>
+			<button
+				type="submit"
+				class="btn flex items-center preset-filled-success-500"
+				disabled={isPending}
+			>
+				{#if isPending}
+					<LoaderCircle class="animate-spin" size="20" />
+				{:else}
+					<Save size="20" />
+				{/if}
+				Speichern
+			</button>
+		</div>
+	</form>
+	<UnsavedChangesModal
+		open={$unsavedChanges}
+		onConfirm={unsavedChanges.confirmLeave}
+		onCancel={unsavedChanges.cancelLeave}
+	/>
+</section>

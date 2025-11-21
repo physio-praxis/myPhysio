@@ -1,17 +1,11 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
-	import { isMobile } from '$lib/stores/breakpoint';
+	import type { PageData } from './$types';
 
-	function logout() {
-		goto(resolve('/auth/logout'));
-	}
+	let { data }: { data: PageData } = $props();
 </script>
 
 <section class="flex h-full flex-col items-center pb-6">
-	{#if $isMobile}
-		<button on:click={logout} class="mt-auto btn w-full preset-filled-error-500 py-2">
-			Abmelden
-		</button>
-	{/if}
+	<div class="text-sm">
+		Version {data.version}
+	</div>
 </section>

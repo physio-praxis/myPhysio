@@ -7,3 +7,12 @@
 @import '@skeletonlabs/skeleton/themes/wintry';
 
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
+/* Fix for FileUpload component - allow clicks to pass through child elements to the dropzone */
+[data-part='dropzone'] {
+	pointer-events: auto;
+}
+
+[data-part='dropzone'] > * {
+	pointer-events: none;
+}
